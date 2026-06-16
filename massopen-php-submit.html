@@ -32,7 +32,7 @@
 
     .card {
       width: 100%;
-      max-width: 640px;
+      max-width: 1000px;
       text-align: center;
       background: rgba(7, 12, 35, 0.72);
       border: 1px solid rgba(90, 169, 255, 0.25);
@@ -60,6 +60,10 @@
       font-size: 1.1rem;
       line-height: 1.6;
       color: #b9cdf0;
+    }
+
+        a.tagline {
+	    color: #aaaaff
     }
 
     form {
@@ -118,13 +122,20 @@
 </head>
 <body>
   <main class="card">
-    <h1><span class="accent">Mass</span> Open</h1>
+    <h1><span class="accent">Mass</span> Open.</h1>
+    <h1><span class="accent">Mass</span> AI.</h1>
+    <h1><span class="accent">Mass</span> Community.</h1>
+ 
     <p class="tagline">Growing the open source AI community in Massachusetts. Add your email below to get new updates</p>
     <form id="signup" method="post" action="submit.php" novalidate>
       <input type="email" id="email" name="email" placeholder="you@example.com" aria-label="Email address" required>
       <button type="submit">add my email</button>
     </form>
     <p class="note" id="note" role="status" aria-live="polite"></p>
+    <p class="tagline">Read the essay below for more context:</p>
+    <p><a href="https://www.linkedin.com/pulse/afterglow-tech-week-whither-boston-technology-john-mark-walker-annae/" class="tagline" target="_blank" >In the Afterglow of Boston Tech Week, Whither Boston Technology?</a>
+    </p>
+
   </main>
 
   <script>
