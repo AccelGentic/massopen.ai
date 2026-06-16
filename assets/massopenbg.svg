@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <!-- Tiling abstract retro sci-fi pattern in dark blues -->
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#060a1f"/>
+      <stop offset="0.5" stop-color="#0a1233"/>
+      <stop offset="1" stop-color="#050816"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="240" height="240" fill="url(#base)"/>
+
+  <!-- fine grid (seamless: lines at edges so tiles align) -->
+  <g stroke="#16306e" stroke-width="1" opacity="0.45">
+    <path d="M0 0 H240 M0 60 H240 M0 120 H240 M0 180 H240 M0 240 H240"/>
+    <path d="M0 0 V240 M60 0 V240 M120 0 V240 M180 0 V240 M240 0 V240"/>
+  </g>
+
+  <!-- circuit traces -->
+  <g stroke="#2f6df0" stroke-width="2" fill="none" opacity="0.55" stroke-linecap="round">
+    <path d="M0 30 H40 L60 50 V90 H100"/>
+    <path d="M240 30 H200 L180 50 V90 H140"/>
+    <path d="M30 240 V200 L50 180 H90 V140"/>
+    <path d="M210 240 V200 L190 180 H150 V140"/>
+    <path d="M120 0 V40 L100 60"/>
+    <path d="M120 240 V200 L140 180"/>
+  </g>
+
+  <!-- concentric arcs at center (retro radar/sci-fi) -->
+  <g stroke="#3f8cff" fill="none" opacity="0.4">
+    <circle cx="120" cy="120" r="14" stroke-width="1.5"/>
+    <circle cx="120" cy="120" r="26" stroke-width="1"/>
+    <circle cx="120" cy="120" r="40" stroke-width="0.8" stroke-dasharray="4 6"/>
+  </g>
+
+  <!-- nodes / glowing dots -->
+  <g fill="#5aa9ff">
+    <circle cx="100" cy="90" r="3"/>
+    <circle cx="140" cy="90" r="3"/>
+    <circle cx="100" cy="140" r="3"/>
+    <circle cx="140" cy="140" r="3"/>
+    <circle cx="120" cy="120" r="2.5" fill="#9cd2ff"/>
+  </g>
+  <g fill="#244a9e">
+    <circle cx="40" cy="30" r="2.5"/>
+    <circle cx="200" cy="30" r="2.5"/>
+    <circle cx="30" cy="200" r="2.5"/>
+    <circle cx="210" cy="200" r="2.5"/>
+    <circle cx="0" cy="120" r="2.5"/>
+    <circle cx="240" cy="120" r="2.5"/>
+    <circle cx="120" cy="0" r="2.5"/>
+    <circle cx="120" cy="240" r="2.5"/>
+  </g>
+
+  <!-- small accent chips -->
+  <g fill="none" stroke="#1f4fb0" stroke-width="1" opacity="0.6">
+    <rect x="50" y="105" width="14" height="14" rx="2"/>
+    <rect x="176" y="105" width="14" height="14" rx="2"/>
+  </g>
+</svg>

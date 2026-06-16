@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mass Open</title>
+  <meta name="description" content="Growing the open source AI community in Massachusetts.">
+  <style>
+    :root {
+      --accent: #5aa9ff;
+      --accent-dark: #2f6df0;
+      --ink: #eaf2ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; margin: 0; }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background-color: #050816;
+      background-image: url("assets/mass-open-bg.svg");
+      background-repeat: repeat;
+      background-size: 240px 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 1000px;
+      text-align: center;
+      background: rgba(7, 12, 35, 0.72);
+      border: 1px solid rgba(90, 169, 255, 0.25);
+      border-radius: 16px;
+      padding: 56px 40px;
+      box-shadow: 0 0 60px rgba(47, 109, 240, 0.25);
+      backdrop-filter: blur(4px);
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: clamp(3rem, 12vw, 6rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 0 0 24px rgba(90, 169, 255, 0.6);
+    }
+
+    h1 .accent { color: var(--accent); }
+
+    p.tagline {
+      margin: 0 auto 32px;
+      max-width: 460px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #b9cdf0;
+    }
+
+    a.tagline {
+	    color: #aaaaff
+    }
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    input[type="email"] {
+      flex: 1 1 260px;
+      min-width: 0;
+      padding: 14px 16px;
+      font-size: 1rem;
+      color: var(--ink);
+      background: rgba(5, 8, 22, 0.8);
+      border: 1px solid rgba(90, 169, 255, 0.4);
+      border-radius: 8px;
+    }
+
+    input[type="email"]::placeholder { color: #6f86b8; }
+
+    input[type="email"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(90, 169, 255, 0.25);
+    }
+
+    button {
+      flex: 0 0 auto;
+      padding: 14px 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #050816;
+      background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      box-shadow: 0 0 24px rgba(90, 169, 255, 0.6);
+    }
+
+    button:active { transform: translateY(1px); }
+
+    .note {
+      margin-top: 18px;
+      min-height: 1.2em;
+      font-size: 0.95rem;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1><span class="accent">Mass</span> Open.</h1>
+    <h1><span class="accent">Mass</span> AI.</h1>
+    <h1><span class="accent">Mass</span> Community.</h1>
+    <p class="tagline">Growing the open source AI community in Massachusetts. Add your email below to get new updates</p>
+    <form id="signup" novalidate>
+      <input type="email" id="email" name="email" placeholder="you@example.com" aria-label="Email address" required>
+      <button type="submit">add my email</button>
+    </form>
+    <p class="note" id="note" role="status" aria-live="polite"></p>
+    <p class="tagline">Read the essay below for more context:</p>
+    <p><a href="https://www.linkedin.com/pulse/afterglow-tech-week-whither-boston-technology-john-mark-walker-annae/" class="tagline" target="_blank" >In the Afterglow of Boston Tech Week, Whither Boston Technology?</a>
+    </p>
+  </main>
+
+  <script>
+    var form = document.getElementById("signup");
+    var email = document.getElementById("email");
+    var note = document.getElementById("note");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!email.checkValidity() || !email.value.trim()) {
+        note.style.color = "#ff8a8a";
+        note.textContent = "Please enter a valid email address.";
+        email.focus();
+        return;
+      }
+      note.style.color = "var(--accent)";
+      note.textContent = "Thanks! We'll keep you posted.";
+      form.reset();
+    });
+  </script>
+</body>
+</html>
