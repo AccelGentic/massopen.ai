@@ -1,0 +1,52 @@
+# --- Site settings -----------------------------------------------------------
+title: Mass Open
+tagline: Mass Open. Mass AI. Mass Community.
+description: >-
+  Growing the open source AI community in New England. Mass Open is a gathering
+  point for builders, researchers, and the open-source-curious across
+  Massachusetts and the wider New England region.
+author: Mass Open
+url: "https://massopen.ai"
+baseurl: ""
+lang: en
+
+# --- Build settings ----------------------------------------------------------
+encoding: utf-8
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+
+# Files Jekyll should not copy into the built site.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - README.md
+  - LICENSE
+  - .gitignore
+
+# Keep the PHP endpoint and its config as static files in the output so the
+# signup form keeps working when deployed to a PHP-enabled host.
+keep_files:
+  - submit.php
+  - db_config.php
+
+# --- Navigation --------------------------------------------------------------
+# Drives the in-page anchor nav. Each item links to a section `id` on the page.
+nav:
+  - title: Mission
+    anchor: mission
+  - title: Community
+    anchor: community
+  - title: Get Involved
+    anchor: involved
+  - title: Read
+    anchor: read
+  - title: Join
+    anchor: join
+
+# --- Outbound links ----------------------------------------------------------
+essay:
+  title: "In the Afterglow of Boston Tech Week, Whither Boston Technology?"
+  url: "https://www.linkedin.com/pulse/afterglow-tech-week-whither-boston-technology-john-mark-walker-annae/"

@@ -1,0 +1,18 @@
+# Content cards rendered in the "Community" section of the one-page site.
+- icon: "◇"
+  title: Open Models
+  body: >-
+    Championing open weights, open data, and reproducible research so the next
+    wave of AI is built in the open — not behind closed doors.
+
+- icon: "△"
+  title: Local Builders
+  body: >-
+    Connecting engineers, founders, researchers, and students across Boston,
+    Cambridge, and the wider New England corridor.
+
+- icon: "○"
+  title: Shared Knowledge
+  body: >-
+    Talks, meetups, and write-ups that turn scattered expertise into a commons
+    everyone can learn from and build on.

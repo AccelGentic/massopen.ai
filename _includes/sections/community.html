@@ -1,0 +1,15 @@
+<section class="section section--alt" id="community">
+  <div class="container">
+    <p class="section__eyebrow">What We're About</p>
+    <h2 class="section__title">Three things we believe in</h2>
+    <ul class="cards">
+      {% for pillar in site.data.pillars %}
+        <li class="card">
+          <span class="card__icon accent" aria-hidden="true">{{ pillar.icon }}</span>
+          <h3 class="card__title">{{ pillar.title }}</h3>
+          <p class="card__body">{{ pillar.body }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>

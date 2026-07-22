@@ -1,0 +1,19 @@
+<header class="site-header" id="top">
+  <nav class="nav" aria-label="Primary">
+    <a class="nav__brand" href="#top">
+      <span class="accent">Mass</span> Open
+    </a>
+
+    <button class="nav__toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">
+      <span class="nav__bars" aria-hidden="true"></span>
+    </button>
+
+    <ul class="nav__menu" id="nav-menu">
+      {% for item in site.nav %}
+        <li class="nav__item">
+          <a class="nav__link" href="#{{ item.anchor }}">{{ item.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+</header>

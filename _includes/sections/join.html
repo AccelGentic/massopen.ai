@@ -1,0 +1,24 @@
+<section class="section section--join" id="join">
+  <div class="container">
+    <p class="section__eyebrow">Join Us</p>
+    <h2 class="section__title">Get on the list</h2>
+    <p class="section__lead">
+      Add your email to hear about events, projects, and gatherings across
+      New England. No spam — just updates from the community.
+    </p>
+
+    <form id="signup" class="signup" method="post" action="{{ '/submit.php' | relative_url }}" novalidate>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        class="signup__input"
+        placeholder="you@example.com"
+        aria-label="Email address"
+        autocomplete="email"
+        required>
+      <button type="submit" class="btn btn--primary signup__button">Add my email</button>
+    </form>
+    <p class="signup__note" id="note" role="status" aria-live="polite"></p>
+  </div>
+</section>

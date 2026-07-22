@@ -1,0 +1,17 @@
+<section class="section" id="involved">
+  <div class="container">
+    <p class="section__eyebrow">Get Involved</p>
+    <h2 class="section__title">Three steps to plug in</h2>
+    <ol class="steps">
+      {% for item in site.data.involved %}
+        <li class="step">
+          <span class="step__num accent">{{ item.step }}</span>
+          <div class="step__body">
+            <h3 class="step__title">{{ item.title }}</h3>
+            <p>{{ item.body }}</p>
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>

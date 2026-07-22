@@ -1,0 +1,12 @@
+# "Get Involved" steps rendered as an ordered list of ways to participate.
+- step: "01"
+  title: Join the list
+  body: Add your email below to get updates on events, projects, and gatherings.
+
+- step: "02"
+  title: Show up
+  body: Come to a meetup, share what you're building, and meet other builders.
+
+- step: "03"
+  title: Build in the open
+  body: Contribute to open models, datasets, and tools — and tell the community.
