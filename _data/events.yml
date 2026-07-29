@@ -1,0 +1,12 @@
+# "Events" dates rendered as an ordered list of ways to participate.
+- date: "Sept 15, 2026"
+  title: AI 101 - Washington, DC (State of the Stack)
+  body: "Our insaugural AI 101 event! AI 101 is a one-day conference for enterprise developers and devops professionals to get started with open models and local agentic engineering. Head over to the <a href=\"https://dcstateofthestack.org/registration/\" target=\"_null\">registration page</a> at the DC State of the Stack event site. Registration is $50 per person - <a href=\"mailto:massopen@massopen.ai\">ask about group discounts</a>.<p><strong>Agenda</strong></p><p></p><p>9:30am - 10am: Kickoff - the latest in open source AI management and governance<br />10am - 11am: Getting Started with Local Models(Quantization, Harnesses, etc.)<br />11am - noon: The Basics of Ontologies and Data Graphs - what your agents need to know<br />noon - 1pm: Lunch<br />1pm - 4pm: Hands-on workshops (quantization, constructing a harness, coding with agent personas)"
+
+- date: "Sept 26, 2026"
+  title: AI 101 - Boston, MA (location TBD)
+  body: Our next AI 101 will be in Boston. More details to come as they are available.
+
+- date: "October 3, 2026"
+  title: AI 101 - NY, NY (location TBD)
+  body: The AI 101 tour will continue to New York City. Details to come. 
