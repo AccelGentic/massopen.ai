@@ -2,9 +2,9 @@
 title: Mass Open
 tagline: Mass Open. Mass AI. Mass Community.
 description: >-
-  Growing the open source AI community in New England. Mass Open is a gathering
-  point for builders, researchers, and the open-source-curious across
-  Massachusetts and the wider New England region.
+  Growing the open source AI community in New England and the Acela corridor. Mass Open is a gathering
+  point for enterprise developers, builders, researchers, and the open-source-curious across
+  Massachusetts, New England, New York, and DC.
 author: Mass Open
 url: "https://massopen.ai"
 baseurl: ""
@@ -37,10 +37,8 @@ keep_files:
 nav:
   - title: Mission
     anchor: mission
-  - title: Community
-    anchor: community
-  - title: Get Involved
-    anchor: involved
+  - title: Events
+    anchor: events
   - title: Read
     anchor: read
   - title: Join
