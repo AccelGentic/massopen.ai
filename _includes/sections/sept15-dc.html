@@ -1,0 +1,17 @@
+<section class="section" id="sept15-dc">
+  <div class="container">
+    <p class="section__eyebrow">Upcoming Events</p>
+    <h2 class="section__title">Check Out These Upcoming Events</h2>
+    <ol class="dates">
+      {% for item in site.data.sept15-dc %}
+        <li class="date">
+          <span class="date__num accent">{{ item.date }}</span>
+          <div class="date__body">
+            <h3 class="date__title">{{ item.title }}</h3>
+            <p>{{ item.body }}</p>
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
