@@ -27,6 +27,8 @@ exclude:
   - .gitignore
   # Never publish the schema — it would be downloadable at /schema.sql.
   - schema.sql
+  # Build-time asset generation; not part of the site.
+  - tools
 
 # Keep the PHP endpoint and its config as static files in the output so the
 # signup form keeps working when deployed to a PHP-enabled host.
