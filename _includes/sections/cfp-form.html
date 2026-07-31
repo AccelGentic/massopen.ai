@@ -10,8 +10,14 @@
       </p>
     </div>
 
+    {%- comment -%}
+      Both endpoint URLs are absolute, built through relative_url so they
+      honour `baseurl`. This page is published at /cfp/, so a relative path
+      would resolve against that directory instead of the web root.
+    {%- endcomment -%}
     <form id="cfp-form" class="form" method="post"
-          action="{{ '/cfp_submit.php' | relative_url }}" novalidate>
+          action="{{ '/cfp_submit.php' | relative_url }}"
+          data-token-url="{{ '/cfp_token.php' | relative_url }}" novalidate>
 
       <div class="field">
         <label class="field__label" for="cfp-name">Name</label>

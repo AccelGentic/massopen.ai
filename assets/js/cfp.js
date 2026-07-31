@@ -15,18 +15,31 @@
   var nonce  = document.getElementById("cfp-nonce");
 
   /* --- 1. Nonce ------------------------------------------------------------ */
+  // Absolute, and supplied by the template so it honours `baseurl`. A relative
+  // path would resolve against /cfp/ rather than the web root.
+  var tokenUrl = form.getAttribute("data-token-url") || "/cfp_token.php";
+
   function loadNonce() {
-    return fetch("cfp_token.php", {
+    return fetch(tokenUrl, {
       headers: { Accept: "application/json" },
       cache: "no-store"
     })
-      .then(function (res) { return res.json(); })
-      .then(function (body) {
-        if (body && body.ok && body.nonce) {
-          nonce.value = body.nonce;
-        }
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
       })
-      .catch(function () { /* Submit will report it. */ });
+      .then(function (body) {
+        if (!body || !body.ok || !body.nonce) throw new Error("no nonce");
+        nonce.value = body.nonce;
+      })
+      .catch(function (err) {
+        // Say so rather than leaving the form looking like it is still
+        // loading — a broken endpoint is otherwise invisible until submit.
+        note.style.color = "#ff8a8a";
+        note.textContent =
+          "The form couldn't finish loading. Please refresh, or email us your proposal.";
+        if (window.console) console.error("CFP: nonce request failed:", err);
+      });
   }
 
   loadNonce();
