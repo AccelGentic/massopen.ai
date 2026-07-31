@@ -40,6 +40,7 @@ keep_files:
   - cfp_token.php
   - cfp_submit.php
   - cfp_confirm.php
+  - contact_submit.php
   - db_config.php
   - mail_config.php
 
@@ -59,6 +60,8 @@ nav:
     url: /cfp/
   - title: Sponsors
     url: /sponsors/
+  - title: Contact
+    url: /contact/
 
 # --- Outbound links ----------------------------------------------------------
 essay:

@@ -17,6 +17,7 @@
  *                                          pre-check (metered, off by default)
  *   MASSOPEN_RESEND_SECONDS    optional — min gap between resends, default 90
  *   MASSOPEN_IP_HOURLY_LIMIT   optional — signups per IP per hour, default 10
+ *   MASSOPEN_CONTACT_TO        optional — contact form recipient
  */
 
 declare(strict_types=1);
@@ -46,4 +47,10 @@ return [
     'validate_emails' => (getenv('MASSOPEN_VALIDATE_EMAILS') ?: '0') === '1',
     'resend_seconds'  => (int) (getenv('MASSOPEN_RESEND_SECONDS') ?: 90),
     'ip_hourly_limit' => (int) (getenv('MASSOPEN_IP_HOURLY_LIMIT') ?: 10),
+
+    // Contact form. Always sent to this single address — there is no mailing
+    // list involved, so the double opt-in machinery above does not apply.
+    'contact_to'          => getenv('MASSOPEN_CONTACT_TO') ?: 'massopen@accelgentic.ai',
+    'contact_min_seconds' => (int) (getenv('MASSOPEN_CONTACT_MIN_SECONDS') ?: 3),
+    'contact_max_hours'   => (int) (getenv('MASSOPEN_CONTACT_MAX_HOURS') ?: 3),
 ];

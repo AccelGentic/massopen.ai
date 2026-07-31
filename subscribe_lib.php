@@ -132,8 +132,15 @@ function mo_throttle_ok(PDO $pdo, string $ip, int $limit): bool
  *
  * @return array{ok: bool, status: int, body: string}
  */
-function mo_mailgun_send(array $mail, string $to, string $subject, string $text, string $html, string $tag): array
-{
+function mo_mailgun_send(
+    array $mail,
+    string $to,
+    string $subject,
+    string $text,
+    string $html,
+    string $tag,
+    ?string $replyTo = null
+): array {
     $fields = [
         'from'    => $mail['from'],
         'to'      => $to,
@@ -148,8 +155,9 @@ function mo_mailgun_send(array $mail, string $to, string $subject, string $text,
         'o:tracking-opens'  => 'no',
     ];
 
-    if ($mail['reply_to'] !== '') {
-        $fields['h:Reply-To'] = $mail['reply_to'];
+    $replyTo = $replyTo ?? $mail['reply_to'];
+    if ($replyTo !== '') {
+        $fields['h:Reply-To'] = $replyTo;
     }
 
     $ch = curl_init($mail['api_base'] . '/v3/' . rawurlencode($mail['domain']) . '/messages');
