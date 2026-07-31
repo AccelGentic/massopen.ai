@@ -1,0 +1,87 @@
+<section class="section" id="cfp">
+  <div class="container">
+    <p class="section__eyebrow">Submit a talk</p>
+    <h2 class="section__title">Tell us what you'd like to present</h2>
+    <div class="section__lead">
+      <p>
+        We're looking for talks on open source AI — models, tooling, agentic
+        systems, research, and hard-won operational lessons. Practitioners
+        welcome at any experience level.
+      </p>
+    </div>
+
+    <form id="cfp-form" class="form" method="post"
+          action="{{ '/cfp_submit.php' | relative_url }}" novalidate>
+
+      <div class="field">
+        <label class="field__label" for="cfp-name">Name</label>
+        <input class="field__input" type="text" id="cfp-name" name="name"
+               maxlength="120" autocomplete="name" required>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="cfp-email">Email address</label>
+        <input class="field__input" type="email" id="cfp-email" name="email"
+               maxlength="254" autocomplete="email" required>
+        <p class="field__hint">
+          If you're not already on our mailing list, we'll email you a link to
+          verify your proposal.
+        </p>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="cfp-topic">Speaking topic</label>
+        <input class="field__input" type="text" id="cfp-topic" name="topic"
+               maxlength="200" placeholder="The talk title, or a one-line summary" required>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="cfp-bio">Speaker bio</label>
+        <textarea class="field__input field__input--area" id="cfp-bio" name="bio"
+                  rows="5" maxlength="1500"
+                  placeholder="Who you are and what you work on." required></textarea>
+        <p class="field__hint"><span id="bio-count">0</span> / 1500 characters</p>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="cfp-abstract">Talk abstract</label>
+        <textarea class="field__input field__input--area" id="cfp-abstract" name="abstract"
+                  rows="9" maxlength="2000"
+                  placeholder="What the talk covers, who it's for, and what people will take away." required></textarea>
+        <p class="field__hint"><span id="abstract-count">0</span> / 2000 characters</p>
+      </div>
+
+      {%- comment -%}
+        Honeypots — hidden from people, tempting to bots that fill in every
+        input they find. Removed from the accessibility tree so screen readers
+        never announce them.
+      {%- endcomment -%}
+      <div class="form__hp" aria-hidden="true">
+        <label for="website">Leave this field empty</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        <label for="company_url">Leave this field empty too</label>
+        <input type="text" id="company_url" name="company_url" tabindex="-1" autocomplete="off">
+      </div>
+
+      {%- comment -%}
+        Filled in by cfp.js from cfp_token.php. The issue time lives server
+        side, so this is both the timing trap and a check that the page's
+        JavaScript actually ran.
+      {%- endcomment -%}
+      <input type="hidden" id="cfp-nonce" name="nonce" value="">
+
+      <div class="form__actions">
+        <button type="submit" class="btn btn--primary" id="cfp-submit">Submit proposal</button>
+      </div>
+
+      <p class="signup__note" id="cfp-note" role="status" aria-live="polite"></p>
+
+      <noscript>
+        <p class="field__hint" style="color:#ff8a8a;">
+          This form needs JavaScript enabled. If you'd rather not, email your
+          proposal to us instead.
+        </p>
+      </noscript>
+    </form>
+  </div>
+</section>

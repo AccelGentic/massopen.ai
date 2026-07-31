@@ -1,0 +1,28 @@
+<section class="section" id="tiers">
+  <div class="container">
+    <p class="section__eyebrow">Levels</p>
+    <h2 class="section__title">Sponsorship Tiers</h2>
+
+    <div class="table-wrap">
+      <table class="tiers">
+        <caption class="visually-hidden">Mass Open sponsorship tiers</caption>
+        <thead>
+          <tr>
+            <th scope="col"><span class="visually-hidden">Detail</span></th>
+            <th scope="col">Brand Sponsor</th>
+            <th scope="col">Attendee Sponsor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in site.data.tiers.rows %}
+            <tr>
+              <th scope="row">{{ row.label }}</th>
+              <td>{% if row.brand and row.brand != "" %}{{ row.brand }}{% else %}&mdash;{% endif %}</td>
+              <td>{% if row.attendee and row.attendee != "" %}{{ row.attendee }}{% else %}&mdash;{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

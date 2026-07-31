@@ -25,15 +25,25 @@ exclude:
   - README.md
   - LICENSE
   - .gitignore
+  # Never publish the schema — it would be downloadable at /schema.sql.
+  - schema.sql
 
 # Keep the PHP endpoint and its config as static files in the output so the
 # signup form keeps working when deployed to a PHP-enabled host.
 keep_files:
   - submit.php
+  - confirm.php
+  - unsubscribe.php
+  - subscribe_lib.php
+  - cfp_token.php
+  - cfp_submit.php
+  - cfp_confirm.php
   - db_config.php
+  - mail_config.php
 
 # --- Navigation --------------------------------------------------------------
-# Drives the in-page anchor nav. Each item links to a section `id` on the page.
+# Drives the top nav. Items with an `anchor` jump to a section on the home page;
+# items with a `url` link to a standalone page.
 nav:
   - title: Mission
     anchor: mission
@@ -43,6 +53,10 @@ nav:
     anchor: read
   - title: Join
     anchor: join
+  - title: CFP
+    url: /cfp/
+  - title: Sponsors
+    url: /sponsors/
 
 # --- Outbound links ----------------------------------------------------------
 essay:

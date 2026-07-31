@@ -1,0 +1,15 @@
+# Sponsorship tiers table (Sponsors page).
+# Each row of the table; fill in `brand` and `attendee` with the copy for each
+# column. Leave a value empty ("") to render an em dash placeholder.
+rows:
+  - label: Description
+    brand: ""
+    attendee: ""
+
+  - label: Amount
+    brand: ""
+    attendee: ""
+
+  - label: Sponsor Benefit
+    brand: ""
+    attendee: ""
