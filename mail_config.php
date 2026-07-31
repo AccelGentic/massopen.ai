@@ -30,7 +30,7 @@ return [
     'api_base'        => rtrim(getenv('MASSOPEN_MAILGUN_BASE') ?: 'https://api.mailgun.net', '/'),
 
     'from'            => getenv('MASSOPEN_MAIL_FROM') ?: ('Mass Open <hello@' . $domain . '>'),
-    'reply_to'        => getenv('MASSOPEN_MAIL_REPLY_TO') ?: '',
+    'reply_to'        => getenv('MASSOPEN_MAIL_REPLY_TO') ?: 'massopen@accelgentic.ai',
 
     'site_url'        => rtrim(getenv('MASSOPEN_SITE_URL') ?: 'https://massopen.ai', '/'),
 
