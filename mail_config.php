@@ -29,8 +29,8 @@ return [
     // US region by default; EU accounts must use https://api.eu.mailgun.net.
     'api_base'        => rtrim(getenv('MASSOPEN_MAILGUN_BASE') ?: 'https://api.mailgun.net', '/'),
 
-    'from'            => getenv('MASSOPEN_MAIL_FROM') ?: ('Mass Open <noreply@' . $domain . '>'),
-    'reply_to'        => getenv('MASSOPEN_MAIL_REPLY_TO') ?: 'massopen@accelgentic.ai',
+    'from'            => getenv('MASSOPEN_MAIL_FROM') ?: ('Mass Open <hello@' . $domain . '>'),
+    'reply_to'        => getenv('MASSOPEN_MAIL_REPLY_TO') ?: '',
 
     'site_url'        => rtrim(getenv('MASSOPEN_SITE_URL') ?: 'https://massopen.ai', '/'),
 

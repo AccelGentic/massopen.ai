@@ -74,8 +74,9 @@
     note.style.color = "var(--accent)";
     note.textContent = "Submitting…";
 
-    var data = new FormData();
-    data.append("email", email.value.trim());
+    // Built from the form so the honeypot field is submitted too; the server
+    // needs to see it empty. Trimming happens server-side.
+    var data = new FormData(form);
 
     fetch(form.action, {
       method: "POST",
