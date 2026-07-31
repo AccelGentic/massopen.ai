@@ -3,13 +3,13 @@
 # column. Leave a value empty ("") to render an em dash placeholder.
 rows:
   - label: Description
-    brand: ""
-    attendee: ""
+    brand: "Logo placement online and on-site at event plus 5-minute sponsor pitch"
+    attendee: "10 tickets and networking opportunities with speakers and attendees"
 
   - label: Amount
-    brand: ""
-    attendee: ""
+    brand: "$2,000"
+    attendee: "$500"
 
   - label: Sponsor Benefit
-    brand: ""
-    attendee: ""
+    brand: "Company logo on massopen.ai, social media, and on-site event materials, including lunch signs and slides; 5 minutes to address attendees in the morning"
+    attendee: "Receive 10 tickets to distribute at your discretion for employees or valuable partners and clients; networking opportunities with speakers and attendees"
