@@ -87,8 +87,8 @@ try {
         $safeEmail = htmlspecialchars($row['email'], ENT_QUOTES, 'UTF-8');
 
         mo_render_page('Confirm your subscription', <<<HTML
-          <p class="section__eyebrow">One last step</p>
-          <h2 class="section__title">Confirm your subscription</h2>
+          <h2 class="section__title">ONE LAST STEP!</h2>
+          <h2 class="section__title">Please confirm your subscription</h2>
           <p class="section__lead">
             Press the button to add <strong style="color:#eaf2ff;">{$safeEmail}</strong>
             to the Mass Open list.
