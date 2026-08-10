@@ -6,9 +6,10 @@ site generator.
 
 ## How it's built
 
-The page is a single scrolling document made of anchored sections, with a
-sticky in-page navigation that jumps to each anchor (`#mission`, `#community`,
-`#involved`, `#read`, `#join`).
+The home page is a single scrolling document made of anchored sections, with a
+sticky nav that jumps to each anchor (`#mission`, `#events`, `#read`). The nav
+also carries standalone pages (`/cfp/`, `/sponsors/`) and one external link,
+the Ghost newsletter at news.massopen.ai.
 
 ```
 .
@@ -23,31 +24,29 @@ sticky in-page navigation that jumps to each anchor (`#mission`, `#community`,
 │   └── sections/           # one include per page section
 │       ├── hero.html
 │       ├── mission.html
-│       ├── community.html
-│       ├── involved.html
+│       ├── events.html
 │       ├── read.html
-│       └── join.html
+│       ├── cfp-form.html
+│       └── benefits / audience / tiers.html   (Sponsors)
 ├── _data/
-│   ├── pillars.yml         # "Community" cards
-│   └── involved.yml        # "Get Involved" steps
+│   ├── events.yml          # upcoming events
+│   ├── tiers.yml           # sponsorship table
+│   └── pillars.yml / involved.yml
 ├── assets/
 │   ├── css/style.css
-│   ├── js/main.js          # mobile nav, scroll-spy, signup form
+│   ├── js/main.js          # mobile nav, scroll-spy
+│   ├── js/cfp.js           # CFP nonce, counters, submit
 │   ├── favicon.svg
 │   └── mass-open-bg.svg    # tiling background
-├── submit.php              # step 1: record pending + send confirmation
-├── confirm.php             # step 2: confirm (GET shows button, POST commits)
-├── unsubscribe.php         # opt-out, same GET/POST shape
 ├── cfp.html                # /cfp/ call for papers page
 ├── cfp_token.php           # issues single-use form nonces
 ├── cfp_submit.php          # proposal intake + anti-spam
 ├── cfp_confirm.php         # verifies proposals from unknown addresses
 ├── subscribe_lib.php       # shared helpers (DB, tokens, Mailgun)
+├── tools/                  # favicon + subscriber migration scripts
 ├── db_config.php           # DB credentials (read from env vars)
 ├── mail_config.php         # Mailgun + opt-in settings (read from env vars)
 ├── schema.sql              # subscriber tables (excluded from the build)
-├── confirmed.html          # /confirmed/  landing page
-├── unsubscribed.html       # /unsubscribed/ landing page
 └── cfp-received.html       # /cfp-received/ landing page
 ```
 
@@ -68,96 +67,41 @@ bundle exec jekyll serve
 
 The build output is written to `_site/`.
 
-## The signup form — double opt-in
+## Newsletter — retired, now Ghost
 
-Nobody is added to the list by filling in the form. An address only becomes a
-subscriber after the person proves they control the mailbox.
+The PHP double opt-in signup has been retired. Subscriptions live on the
+self-hosted Ghost site at <https://news.massopen.ai/>, which handles
+confirmation, unsubscribe and sending.
 
+Removed: `submit.php`, `confirm.php`, `unsubscribe.php`,
+`_includes/sections/join.html`, `confirmed.html`, `unsubscribed.html`, and the
+signup handler in `assets/js/main.js`.
+
+Kept on purpose:
+
+- `subscribe_lib.php`, `db_config.php`, `mail_config.php` — the CFP still uses
+  them. Two helpers inside (`mo_throttle_ok`, `mo_mailgun_address_ok`) are now
+  unused; they are left alone so the CFP path is untouched.
+- The `subscribers` and `signup_throttle` tables — `cfp_submit.php` reads
+  `subscribers` so an already-confirmed address can skip proposal
+  verification, and the table is the record of who consented and when.
+  Nothing writes to either any more. See the header of `schema.sql`.
+
+To move the existing list into Ghost:
+
+```bash
+tools/migrate-subscribers-to-ghost.sh          # writes a Ghost-ready CSV
 ```
-  Join form  ──POST──▶  submit.php        row created, status = pending
-                            │
-                            └── Mailgun API ──▶ confirmation email
-                                                     │
-                                       recipient clicks the link
-                                                     │
-                            ┌────────────────────────┘
-                            ▼
-                        confirm.php   GET  → "Confirm my subscription" button
-                                      POST → status = confirmed  ──▶ /confirmed/
-```
 
-Only rows with `status = 'confirmed'` should ever be mailed:
+Only `confirmed` addresses migrate as subscribed; `unsubscribed` carry across
+suppressed; `pending` are never migrated.
 
-```sql
-SELECT email, unsubscribe_token FROM subscribers WHERE status = 'confirmed';
-```
+### Linking to the newsletter
 
-### Why the confirmation page has a button
-
-Corporate mail security (Outlook Safe Links, Proofpoint, and friends)
-pre-fetches every URL in an incoming message. If a plain `GET` confirmed the
-subscription, those scanners would silently opt people in — which defeats the
-whole point. So `GET /confirm.php?token=…` only *renders* a page; the actual
-confirmation is a `POST`. `unsubscribe.php` works the same way.
-
-### Why Mailgun's HTTP API rather than SMTP or `mail()`
-
-The confirmation message is the one email that absolutely has to arrive — if it
-lands in spam, the subscriber is lost silently. PHP's `mail()` from a web host
-has no SPF/DKIM alignment and is routinely filtered. The Mailgun Messages API
-also avoids an SMTP library, works over port 443, and returns a message id you
-can trace in the Mailgun logs.
-
-Note the flow deliberately does *not* use Mailgun Mailing Lists (which have
-their own opt-in confirmation): that would move the subscriber record and the
-confirmation copy into Mailgun. Here Mailgun is only the transport, and your
-database stays the source of truth. Click and open tracking are switched off on
-the confirmation message so the link the recipient sees is the real one.
-
-### Setup
-
-1. Create the tables:
-
-   ```bash
-   mysql -u <user> -p <database> < schema.sql
-   ```
-
-2. Set the environment variables in your web server / PHP-FPM pool:
-
-   | Variable | Required | Notes |
-   | --- | --- | --- |
-   | `MASSOPEN_DB_HOST` / `_NAME` / `_USER` / `_PASS` / `_PORT` | yes | as before |
-   | `MASSOPEN_MAILGUN_API_KEY` | yes | Mailgun private API key |
-   | `MASSOPEN_MAILGUN_DOMAIN` | yes | e.g. `mg.massopen.ai` |
-   | `MASSOPEN_MAILGUN_BASE` | no | `https://api.eu.mailgun.net` for EU accounts |
-   | `MASSOPEN_SITE_URL` | no | public origin, used to build links. Default `https://massopen.ai` |
-   | `MASSOPEN_MAIL_FROM` | no | default `Mass Open <hello@DOMAIN>` |
-   | `MASSOPEN_MAIL_REPLY_TO` | no | |
-   | `MASSOPEN_CONFIRM_TTL_HOURS` | no | link lifetime, default 48 |
-   | `MASSOPEN_RESEND_SECONDS` | no | min gap between resends, default 90 |
-   | `MASSOPEN_IP_HOURLY_LIMIT` | no | signups per IP per hour, default 10 |
-   | `MASSOPEN_VALIDATE_EMAILS` | no | `1` enables the Mailgun validation pre-check (metered, off by default) |
-
-3. Verify SPF/DKIM for the sending domain in the Mailgun dashboard before going
-   live, or the confirmation mail will land in spam.
-
-### Abuse handling
-
-- **Enumeration** — the form returns the same body *and* the same status code
-  whether an address is new, pending, or already subscribed, so it cannot be
-  used to test who is on the list.
-- **List bombing** — signups are capped per IP per hour (`signup_throttle`), and
-  a given address is only mailed once per `MASSOPEN_RESEND_SECONDS`.
-- **Bots** — a honeypot field is accepted and discarded.
-- **Token safety** — confirmation tokens are 256-bit, single-use, expiring, and
-  stored only as a SHA-256 hash, so a database leak cannot confirm anyone. The
-  unsubscribe token is stored in clear because it must be reproducible for
-  every future send; it grants nothing but unsubscribing.
-
-Known residual: a fresh signup makes a Mailgun API call and so takes measurably
-longer than a "nothing to do" response. A determined attacker could use that
-timing difference as a weak membership oracle. Removing it entirely would mean
-sending the mail asynchronously via a queue.
+The URL is set once, as `news_url` in `_config.yml`. The nav resolves it via
+`external: news_url`, and the hero button uses `{{ site.news_url }}`. One
+exception: `_data/sept24-bos.yml` contains the URL literally, because Liquid
+is not evaluated inside data files.
 
 ## Call for papers
 
@@ -223,13 +167,6 @@ Prune spent nonces from cron:
 ```sql
 DELETE FROM form_nonces WHERE issued_at < NOW() - INTERVAL 2 DAY;
 ```
-
-### Migrating the old single opt-in rows
-
-Addresses collected by the previous version never confirmed, so they are not
-double opt-in. Import them as `pending` and let them confirm, or leave them
-alone — do not mark them `confirmed`. See the notes at the bottom of
-`schema.sql`.
 
 ## License
 

@@ -2,8 +2,12 @@
 /**
  * Shared helpers for the Mass Open double opt-in flow.
  *
- * Included by submit.php, confirm.php and unsubscribe.php. Requesting this
- * file directly does nothing.
+ * Included by the CFP endpoints (cfp_token.php, cfp_submit.php,
+ * cfp_confirm.php). Requesting this file directly does nothing.
+ *
+ * mo_throttle_ok() and mo_mailgun_address_ok() are now unused — they served
+ * the retired newsletter signup. Left in place rather than removed so the
+ * CFP path is untouched.
  */
 
 declare(strict_types=1);

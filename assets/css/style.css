@@ -368,51 +368,19 @@ a { color: var(--accent); }
 .essay-link__title { flex: 1; color: var(--ink); font-size: 1.1rem; font-weight: 600; }
 .essay-link__arrow { font-size: 1.4rem; flex: 0 0 auto; }
 
-/* Join / signup ----------------------------------------------------------- */
+/* Shared form status line (used by the CFP form) --------------------------- */
 .section--join { text-align: center; }
 .section--join .section__eyebrow,
 .section--join .section__lead { margin-left: auto; margin-right: auto; }
 
-.signup {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  margin: 32px auto 0;
-  max-width: 560px;
-}
-.signup__input {
-  flex: 1 1 260px;
-  min-width: 0;
-  padding: 14px 16px;
-  font-size: 1rem;
-  color: var(--ink);
-  background: rgba(5, 8, 22, 0.8);
-  border: 1px solid var(--border-strong);
-  border-radius: 8px;
-}
-.signup__input::placeholder { color: var(--ink-faint); }
-.signup__input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(90, 169, 255, 0.25);
-}
-.signup__button { flex: 0 0 auto; }
 .signup__note {
   margin-top: 18px;
   min-height: 1.2em;
   font-size: 0.95rem;
   color: var(--accent);
 }
-.signup__fine {
-  margin: 10px auto 0;
-  max-width: 460px;
-  font-size: 0.85rem;
-  color: var(--ink-faint);
-}
 
 /* Honeypot — off-screen rather than display:none, which some bots detect. */
-.signup__hp,
 .form__hp {
   position: absolute;
   left: -9999px;

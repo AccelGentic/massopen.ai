@@ -11,7 +11,14 @@
     <ul class="nav__menu" id="nav-menu">
       {% for item in site.nav %}
         <li class="nav__item">
-          {% if item.url %}
+          {% if item.external %}
+            {%- comment -%}
+              Another site entirely (the Ghost newsletter). `external` names a
+              site key so the URL is configured in one place. Same tab, so
+              moving between the two feels like one site.
+            {%- endcomment -%}
+            <a class="nav__link" href="{{ site[item.external] }}">{{ item.title }}</a>
+          {% elsif item.url %}
             {%- comment -%} Standalone page link {%- endcomment -%}
             <a class="nav__link{% if page.url contains item.url %} is-active{% endif %}"
                href="{{ item.url | relative_url }}">{{ item.title }}</a>

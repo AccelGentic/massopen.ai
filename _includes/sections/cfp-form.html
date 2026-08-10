@@ -29,9 +29,13 @@
         <label class="field__label" for="cfp-email">Email address</label>
         <input class="field__input" type="email" id="cfp-email" name="email"
                maxlength="254" autocomplete="email" required>
+        {%- comment -%}
+          Worded without reference to list membership: subscribers now live in
+          Ghost, which this form does not check, so most people will get the
+          verification email regardless.
+        {%- endcomment -%}
         <p class="field__hint">
-          If you're not already on our mailing list, we'll email you a link to
-          verify your proposal.
+          We'll email you a link to verify your proposal.
         </p>
       </div>
 

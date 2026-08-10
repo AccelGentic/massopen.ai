@@ -1,6 +1,23 @@
--- Mass Open — subscriber schema (double opt-in).
+-- Mass Open — database schema.
 --
 -- Apply with:  mysql -u <user> -p <database> < schema.sql
+--
+-- RETIRED: the newsletter double opt-in flow. Subscriptions now live in the
+-- self-hosted Ghost site at news.massopen.ai, and submit.php / confirm.php /
+-- unsubscribe.php have been removed. The `subscribers` and `signup_throttle`
+-- tables are kept, NOT dropped, for two reasons:
+--
+--   1. cfp_submit.php still reads `subscribers` to let an address that already
+--      confirmed skip proposal verification. Dropping it breaks the CFP.
+--   2. It is the record of who consented and when — worth keeping even though
+--      nothing writes to it any more.
+--
+-- Nothing writes to either table now. Once the list is in Ghost (see
+-- tools/migrate-subscribers-to-ghost.sh) and you no longer want the CFP
+-- shortcut, they can go:
+--
+--   -- DROP TABLE signup_throttle;
+--   -- DROP TABLE subscribers;   -- also remove the lookup in cfp_submit.php
 --
 -- A row is created at signup with status='pending'. It only becomes
 -- 'confirmed' after the recipient clicks the link in the confirmation email

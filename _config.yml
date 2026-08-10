@@ -7,6 +7,10 @@ description: >-
   Massachusetts, New England, New York, and DC.
 author: AccelGentic 
 url: "https://massopen.ai"
+
+# The newsletter lives on its own self-hosted Ghost instance. Referenced by
+# the nav (via `external: news_url`) and the hero button — change it here only.
+news_url: "https://news.massopen.ai/"
 baseurl: ""
 lang: en
 
@@ -31,15 +35,9 @@ exclude:
   - tools
 
 # Files in the destination that Jekyll must NOT delete when it cleans.
-#
-# `news` matters: Jekyll wipes anything in the destination it did not generate,
-# so building straight into the web root (or rsyncing with --delete) would
-# destroy the Ghost install living at /news. Listing it here protects it.
+# Only the CFP endpoints remain; the newsletter signup was retired in favour
+# of the Ghost site at news.massopen.ai.
 keep_files:
-  - news
-  - submit.php
-  - confirm.php
-  - unsubscribe.php
   - subscribe_lib.php
   - cfp_token.php
   - cfp_submit.php
@@ -56,14 +54,12 @@ nav:
     anchor: mission
   - title: Events
     anchor: events
-  # Ghost runs under /news. It is a separate application, not a Jekyll page,
-  # so this is a plain URL rather than an anchor.
+  # The newsletter is a separate, self-hosted Ghost site on its own subdomain.
+  # `external` names a top-level site key so the URL is defined once, below.
   - title: News
-    url: /news/
+    external: news_url
   - title: Read
     anchor: read
-  - title: Join
-    anchor: join
   - title: CFP
     url: /cfp/
   - title: Sponsors
