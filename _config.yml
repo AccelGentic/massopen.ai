@@ -30,9 +30,13 @@ exclude:
   # Build-time asset generation; not part of the site.
   - tools
 
-# Keep the PHP endpoint and its config as static files in the output so the
-# signup form keeps working when deployed to a PHP-enabled host.
+# Files in the destination that Jekyll must NOT delete when it cleans.
+#
+# `news` matters: Jekyll wipes anything in the destination it did not generate,
+# so building straight into the web root (or rsyncing with --delete) would
+# destroy the Ghost install living at /news. Listing it here protects it.
 keep_files:
+  - news
   - submit.php
   - confirm.php
   - unsubscribe.php
@@ -52,6 +56,10 @@ nav:
     anchor: mission
   - title: Events
     anchor: events
+  # Ghost runs under /news. It is a separate application, not a Jekyll page,
+  # so this is a plain URL rather than an anchor.
+  - title: News
+    url: /news/
   - title: Read
     anchor: read
   - title: Join
