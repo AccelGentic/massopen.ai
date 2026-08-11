@@ -58,8 +58,6 @@ nav:
   # `external` names a top-level site key so the URL is defined once, below.
   - title: News
     external: news_url
-  - title: Read
-    anchor: read
   - title: CFP
     url: /cfp/
   - title: Sponsors
