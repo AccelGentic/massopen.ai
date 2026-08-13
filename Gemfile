@@ -2,6 +2,7 @@ source "https://rubygems.org"
 
 # Jekyll — the static site generator that powers this flat-file site.
 gem "jekyll", "~> 4.3"
+gem "feedjira"
 
 # Windows and JRuby do not include zoneinfo files, so bundle the tzinfo data.
 platforms :mingw, :x64_mingw, :mswin, :jruby do
