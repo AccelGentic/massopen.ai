@@ -57,7 +57,8 @@ nav:
   # The newsletter is a separate, self-hosted Ghost site on its own subdomain.
   # `external` names a top-level site key so the URL is defined once, below.
   - title: News
-    external: news_url
+#    external: news_url removing this for now
+    anchor: news 
   - title: CFP
     url: /cfp/
   - title: Sponsors
@@ -65,7 +66,11 @@ nav:
   - title: Contact
     url: /contact/
 
-# --- Outbound links ----------------------------------------------------------
+collections:
+  external_feed: 
+    output: false
+    
+    # --- Outbound links ----------------------------------------------------------
 essay:
   title: "In the Afterglow of Boston Tech Week, Whither Boston Technology?"
   url: "https://www.linkedin.com/pulse/afterglow-tech-week-whither-boston-technology-john-mark-walker-annae/"

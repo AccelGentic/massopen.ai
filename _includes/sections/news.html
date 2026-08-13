@@ -1,0 +1,23 @@
+<section class="section" id="news">
+  <div class="container">
+    <p class="section__eyebrow">Blog Posts</p>
+    <h2 class="section__title">Latest News from MassOpen</h2>
+    <ol class="dates">
+      {% assign sorted_feed = site.external_feed | sort: 'date' | reverse %}
+      {% for item in sorted_feed limit: 5 %}
+        <li class="date">
+	<div class="date__body">
+	  <h3 class="date__title">
+		  <a href="{{ item.link }}" rel="noopener noreferrer">
+        {{ item.title }}
+		  </a></h3>
+       Published: {{ item.date | date: "%B %d, %Y" }}
+      <p>{{ item.excerpt }}</p>
+	</li>
+      {% endfor %}
+    </ol>
+    <a class="essay-link" href="http://news.massopen.ai/">Read all of our latest news</a>
+    <div style="min-height: 58px;max-width: 440px;margin: 0 auto;width: 100%"><script src="https://cdn.jsdelivr.net/ghost/signup-form@~0.3/umd/signup-form.min.js" data-button-color="#FF1A75" data-button-text-color="#FFFFFF" data-site="https://news.massopen.ai/" data-locale="en" async></script></div>
+  </div>
+</section>
+
