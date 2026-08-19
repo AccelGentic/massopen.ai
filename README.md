@@ -104,6 +104,33 @@ The URL is set once, as `news_url` in `_config.yml`. The nav resolves it via
 exception: `_data/sept24-bos.yml` contains the URL literally, because Liquid
 is not evaluated inside data files.
 
+## News feed from Ghost
+
+`_plugins/external_feed.rb` pulls the newsletter's RSS into the
+`external_feed` collection so the home page can list recent posts.
+
+The newsletter is a separate service, so it will sometimes be unreachable.
+The plugin degrades instead of failing the build:
+
+1. fetch the live feed; if it parses, use it and cache it
+2. otherwise fall back to the last good copy in `.jekyll-cache/`
+3. otherwise render the section with no items and a link to the newsletter
+
+The cache is the point. Without it an outage would quietly empty the news
+section on the next deploy; with it the site keeps showing the most recent
+posts it ever saw. Every failure logs a warning naming what went wrong, and
+the request has a 10-second timeout so a hung feed cannot hang the build.
+
+The URL defaults to `https://news.massopen.ai/rss` and can be overridden in
+`_config.yml`:
+
+```yaml
+news_feed_url: "https://news.massopen.ai/rss"
+```
+
+To see the fallback locally, point it at something that isn't there and
+build — the site should still come out, with warnings.
+
 ## Call for papers
 
 `/cfp/` collects talk proposals — name, email, speaker bio, speaking topic and
