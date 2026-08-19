@@ -42,6 +42,7 @@ the Ghost newsletter at news.massopen.ai.
 ├── cfp_token.php           # issues single-use form nonces
 ├── cfp_submit.php          # proposal intake + anti-spam
 ├── cfp_confirm.php         # verifies proposals from unknown addresses
+├── cfp_admin.php           # review console (behind HTTP Basic auth)
 ├── subscribe_lib.php       # shared helpers (DB, tokens, Mailgun)
 ├── tools/                  # favicon + subscriber migration scripts
 ├── db_config.php           # DB credentials (read from env vars)
@@ -151,6 +152,81 @@ the character limit, over quota) say what went wrong.
 
 `fill_seconds` and `spam_score` are recorded on every stored row, so you can
 tune the thresholds against real traffic instead of guessing.
+
+### Reviewing proposals
+
+`cfp_admin.php` is the review console: browse, filter, search, edit and export
+proposals. It touches only `cfp_submissions`, so it is not a general database
+tool — a breach there cannot reach the rest of the schema.
+
+**It must sit behind HTTP Basic auth.** The page refuses to serve anything if
+it cannot see an authenticated user, so a half-finished deploy fails closed
+rather than publishing every proposal.
+
+#### Option A — Apache does the auth (recommended)
+
+```apache
+<Files "cfp_admin.php">
+    AuthType Basic
+    AuthName "Mass Open CFP"
+    AuthUserFile /etc/httpd/massopen.htpasswd
+    Require valid-user
+    # Forwards the verified user to PHP-FPM as REMOTE_USER.
+    CGIPassAuth On
+</Files>
+```
+
+```bash
+sudo htpasswd -c /etc/httpd/massopen.htpasswd johnmark   # -c only the first time
+sudo systemctl reload httpd
+```
+
+**Keep the `.htpasswd` file out of this repo.** Anything in the source tree
+that is not excluded gets copied into `_site` and served — you would publish
+your own password hash. `/etc/httpd/` is a fine home for it.
+
+Without `CGIPassAuth On`, Apache verifies the password but PHP never sees
+`REMOTE_USER`, and the page will fail closed with an explanation. If you
+cannot enable it, use Option B.
+
+#### Option B — PHP verifies the password
+
+Set two environment variables and PHP checks the password itself, which also
+keeps the page protected if the Apache rule is ever dropped:
+
+```bash
+php -r 'echo password_hash("your-password", PASSWORD_DEFAULT), "\n";'
+```
+
+| Variable | Notes |
+| --- | --- |
+| `MASSOPEN_ADMIN_USER` | the username to accept |
+| `MASSOPEN_ADMIN_PASSWORD_HASH` | output of the command above — the hash, never the password |
+
+Setting both is fine and is the belt-and-braces option.
+
+#### What you can edit
+
+Name, email, topic, bio, abstract, review status and private reviewer notes.
+Every change is written to `cfp_revisions` with the field, the old and new
+values, and who made it — these are words someone else wrote, so the original
+is always recoverable.
+
+`status` (did the submitter verify their address) is **read-only** here and
+deliberately separate from `review_status` (new / shortlist / accepted /
+rejected). They are different questions, and `cfp_confirm.php` matches on
+`status = 'pending'`, so triage must never touch it.
+
+Editing an address does not re-run verification, and the page says so.
+
+"Export CSV" downloads whatever the current filter shows — useful for sharing
+a shortlist with a committee that doesn't need a login.
+
+#### Upgrading an existing database
+
+The review columns and the revision table are new. `schema.sql` carries the
+`ALTER TABLE … ADD COLUMN IF NOT EXISTS` statements near the CFP section; they
+are safe to re-run.
 
 ### CFP settings
 

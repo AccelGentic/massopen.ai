@@ -42,6 +42,7 @@ keep_files:
   - cfp_token.php
   - cfp_submit.php
   - cfp_confirm.php
+  - cfp_admin.php
   - contact_submit.php
   - db_config.php
   - mail_config.php

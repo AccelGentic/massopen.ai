@@ -109,9 +109,18 @@ CREATE TABLE IF NOT EXISTS cfp_submissions (
   topic              VARCHAR(200) NOT NULL,
   abstract           TEXT         NOT NULL,
 
+  -- `status` is the SUBMITTER's axis: did they verify their address?
+  -- cfp_confirm.php matches on status='pending', so review states must never
+  -- be added to this enum or triaging a proposal would break verification.
   status             ENUM('pending','verified','withdrawn')
                        NOT NULL DEFAULT 'pending',
   verified_via       ENUM('email','known_subscriber') DEFAULT NULL,
+
+  -- `review_status` is the ORGANISER's axis, entirely independent of the above.
+  review_status      ENUM('new','shortlist','accepted','rejected')
+                       NOT NULL DEFAULT 'new',
+  reviewer_notes     TEXT         DEFAULT NULL,
+  reviewed_at        DATETIME     DEFAULT NULL,
 
   verify_token_hash  CHAR(64)     DEFAULT NULL,
   verify_expires_at  DATETIME     DEFAULT NULL,
@@ -133,11 +142,46 @@ CREATE TABLE IF NOT EXISTS cfp_submissions (
   PRIMARY KEY (id),
   KEY idx_cfp_verify_token (verify_token_hash),
   KEY idx_cfp_email (email_canonical),
-  KEY idx_cfp_status (status)
+  KEY idx_cfp_status (status),
+  KEY idx_cfp_review_status (review_status)
 ) ENGINE=InnoDB
   ROW_FORMAT=DYNAMIC
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
+
+
+-- Every admin edit to a proposal, one row per changed field.
+--
+-- These are words someone else wrote and submitted. When a speaker says "that
+-- is not what I sent you", this is the answer — and it is the undo for a
+-- mistaken overwrite.
+CREATE TABLE IF NOT EXISTS cfp_revisions (
+  id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  submission_id  BIGINT UNSIGNED NOT NULL,
+  field          VARCHAR(32)  NOT NULL,
+  old_value      TEXT         DEFAULT NULL,
+  new_value      TEXT         DEFAULT NULL,
+  edited_by      VARCHAR(64)  DEFAULT NULL,   -- the authenticated HTTP user
+  edited_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_rev_submission (submission_id, edited_at),
+  CONSTRAINT fk_rev_submission FOREIGN KEY (submission_id)
+    REFERENCES cfp_submissions (id) ON DELETE CASCADE
+) ENGINE=InnoDB
+  ROW_FORMAT=DYNAMIC
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+
+-- Upgrading an existing install (MariaDB supports IF NOT EXISTS here, so this
+-- is safe to re-run):
+--
+--   ALTER TABLE cfp_submissions
+--     ADD COLUMN IF NOT EXISTS review_status
+--       ENUM('new','shortlist','accepted','rejected') NOT NULL DEFAULT 'new',
+--     ADD COLUMN IF NOT EXISTS reviewer_notes TEXT DEFAULT NULL,
+--     ADD COLUMN IF NOT EXISTS reviewed_at DATETIME DEFAULT NULL,
+--     ADD KEY IF NOT EXISTS idx_cfp_review_status (review_status);
 
 
 -- Single-use form nonces, issued by cfp_token.php when the form is rendered.
