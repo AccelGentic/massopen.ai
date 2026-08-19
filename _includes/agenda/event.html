@@ -1,0 +1,42 @@
+<section class="page-hero">
+  <div class="container">
+    <p class="hero__eyebrow">
+      {% if page.event.starts_on and page.event.starts_on != "" %}
+        <time datetime="{{ page.event.starts_on }}">{{ page.event.starts_on | date: "%-d %B %Y" }}</time>
+      {% endif %}
+      {% if page.event.location and page.event.location != "" %} &middot; {{ page.event.location }}{% endif %}
+    </p>
+    <h1 class="page-hero__title">{{ page.event.title }}</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <p class="section__eyebrow">Agenda</p>
+    <h2 class="section__title">Speakers</h2>
+
+    {% if page.event.talks and page.event.talks.size > 0 %}
+      <ol class="steps">
+        {% for talk in page.event.talks %}
+          <li class="step">
+            <span class="step__num accent">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            <div class="step__body">
+              <h3 class="step__title">
+                <a href="{{ '/agenda/' | relative_url }}{{ page.event.slug }}/{{ talk.slug }}/">{{ talk.topic }}</a>
+              </h3>
+              <p>
+                <a href="{{ '/agenda/' | relative_url }}{{ page.event.slug }}/{{ talk.slug }}/">{{ talk.speaker }}</a>
+              </p>
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p class="section__lead">The programme for this event hasn't been announced yet.</p>
+    {% endif %}
+
+    <p style="margin-top:32px;">
+      <a class="btn btn--ghost" href="{{ '/agenda/' | relative_url }}">&larr; All events</a>
+    </p>
+  </div>
+</section>

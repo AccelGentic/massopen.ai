@@ -1,12 +1,30 @@
-# "Events" dates rendered as an ordered list of ways to participate.
-- date: "Sept 15, 2026"
+# Events, rendered as the list on the home page and synced into the database
+# by `tools/agenda.php sync` so talks can be scheduled against them.
+#
+# This file is the source of truth for event wording. Each entry needs:
+#
+#   slug       stable id, never change it once talks are scheduled
+#   starts_on  machine-readable date (YYYY-MM-DD); `date` stays the display form
+#   title      shown on the home page and at the top of the agenda
+#   location   optional, shown under the agenda heading
+#   body       home-page teaser only; not used by the agenda
+- slug: sept15-dc
+  date: "Sept 15, 2026"
+  starts_on: 2026-09-15
   title: Agentic 101 - Washington, DC (State of the Stack)
+  location: Washington, DC
   body: "Our inaugural Agentic 101 event! <a href=\"#sept15-dc\">(expand)</a>"
 
-- date: "Oct 1, 2026"
+- slug: oct01-bos
+  date: "Oct 1, 2026"
+  starts_on: 2026-10-01
   title: Agentic 101 - Boston, MA (Glasswing Ventures)
+  location: Glasswing Ventures, Boston, MA
   body: "Our next Agentic 101 will be in Boston at Glasswing Ventures. <a href=\"#oct01-bos\">(expand)</a>"
 
-- date: "October 17, 2026"
+- slug: oct17-nyc
+  date: "October 17, 2026"
+  starts_on: 2026-10-17
   title: Agentic 101 - NY, NY (location TBD)
-  body: The Agentic 101 tour will continue to New York City. Details to come. 
+  location: New York, NY
+  body: The Agentic 101 tour will continue to New York City. Details to come.

@@ -131,6 +131,49 @@ news_feed_url: "https://news.massopen.ai/rss"
 To see the fallback locally, point it at something that isn't there and
 build — the site should still come out, with warnings.
 
+## Agenda — published talks
+
+`/agenda/` lists every event; each event page shows its running order; each
+talk has its own page with the speaker's name and bio, the event and date, and
+the topic and abstract.
+
+These are real generated pages (`_plugins/agenda.rb`), not a JavaScript
+widget, so every talk has a URL a speaker can share.
+
+### Publishing
+
+Scheduling happens in the database; publishing is a deliberate step.
+
+```bash
+php tools/agenda.php sync      # _data/events.yml  -> events table
+php tools/agenda.php status    # what is scheduled, and what is not
+php tools/agenda.php export    # accepted talks    -> _data/agenda.yml
+bundle exec jekyll build       # publish
+```
+
+Two one-way flows, so ownership is never ambiguous: **events** are authored in
+`_data/events.yml` and pushed into the database (which needs them only so a
+talk can point at one); **agendas** are assembled in the database — review,
+accept, schedule — and pulled back into git for the build.
+
+Each event in `_data/events.yml` needs a `slug` (stable — never change it once
+talks are scheduled) and a machine-readable `starts_on`.
+
+### What reaches the public site
+
+Only talks that are **both** `review_status = 'accepted'` **and**
+`status = 'verified'`, and only these fields: speaker name, bio, topic,
+abstract. Emails, IP addresses, reviewer notes, spam telemetry and every
+rejected or unverified proposal stay in the database, so no template bug can
+leak them.
+
+Assign a talk to an event in the review console: pick **Scheduled at** and set
+a **Running order** (low numbers first). `status` reports any accepted talk
+that still has no event. An event with nothing scheduled still appears, saying
+the programme is not announced yet.
+
+`_data/agenda.yml` is generated — do not hand-edit it; the next export wins.
+
 ## Call for papers
 
 `/cfp/` collects talk proposals — name, email, speaker bio, speaking topic and

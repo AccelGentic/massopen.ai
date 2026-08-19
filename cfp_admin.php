@@ -26,7 +26,8 @@ require __DIR__ . '/subscribe_lib.php';
 const PER_PAGE = 50;
 
 /** Fields an organiser may change. Everything else is read-only. */
-const EDITABLE = ['name', 'email', 'topic', 'bio', 'abstract', 'review_status', 'reviewer_notes'];
+const EDITABLE = ['name', 'email', 'topic', 'bio', 'abstract', 'review_status',
+                  'reviewer_notes', 'event_id', 'slot_order'];
 
 const REVIEW_STATES = ['new', 'shortlist', 'accepted', 'rejected'];
 
@@ -134,21 +135,27 @@ function spend_nonce(PDO $pdo, string $nonce): bool
     return $stmt->rowCount() === 1;
 }
 
-/** Build the WHERE clause shared by the list view and the CSV export. */
-function build_filter(array $q): array
+/**
+ * Build the WHERE clause shared by the list, the count and the CSV export.
+ *
+ * $prefix qualifies every column (e.g. 's.') for the queries that join events.
+ * Callers must not rewrite the returned SQL themselves — substring replacement
+ * on column names silently mangles `review_status` into `review_s.status`.
+ */
+function build_filter(array $q, string $prefix = ''): array
 {
     $where = [];
     $args  = [];
 
     $status = $q['status'] ?? 'verified';
     if ($status !== 'any') {
-        $where[]          = 'status = :status';
+        $where[]          = $prefix . 'status = :status';
         $args[':status']  = $status;
     }
 
     $review = $q['review'] ?? 'any';
     if ($review !== 'any' && in_array($review, REVIEW_STATES, true)) {
-        $where[]          = 'review_status = :review';
+        $where[]          = $prefix . 'review_status = :review';
         $args[':review']  = $review;
     }
 
@@ -160,7 +167,7 @@ function build_filter(array $q): array
         $like  = '%' . $search . '%';
         $parts = [];
         foreach (['name', 'email', 'topic', 'abstract'] as $i => $col) {
-            $parts[]            = "$col LIKE :s$i";
+            $parts[]            = "{$prefix}$col LIKE :s$i";
             $args[":s$i"]       = $like;
         }
         $where[] = '(' . implode(' OR ', $parts) . ')';
@@ -262,6 +269,21 @@ try {
             if ($field === 'review_status' && !in_array($new, REVIEW_STATES, true)) {
                 continue;
             }
+            if ($field === 'event_id') {
+                // Empty means "not scheduled"; anything else must be a real event.
+                $new = ($new === '' || $new === '0') ? '' : (string) (int) $new;
+                if ($new !== '') {
+                    $check = $pdo->prepare('SELECT COUNT(*) FROM events WHERE id = :id');
+                    $check->execute([':id' => (int) $new]);
+                    if (!(int) $check->fetchColumn()) {
+                        http_response_code(422);
+                        exit('No such event.');
+                    }
+                }
+            }
+            if ($field === 'slot_order') {
+                $new = (string) max(0, (int) $new);
+            }
             if ($field === 'email' && $new !== '' && !filter_var($new, FILTER_VALIDATE_EMAIL)) {
                 http_response_code(422);
                 exit('That email address is not valid.');
@@ -277,8 +299,9 @@ try {
             $sets = [];
             $args = [':id' => $id];
             foreach ($changes as $field => $value) {
-                $sets[]              = "`$field` = :$field";
-                $args[":$field"]     = $value;
+                $sets[]          = "`$field` = :$field";
+                // An unscheduled talk is NULL, not '', or the FK rejects it.
+                $args[":$field"] = ($field === 'event_id' && $value === '') ? null : $value;
             }
             // Editing the address changes the de-duplication key too.
             if (isset($changes['email'])) {
@@ -319,11 +342,14 @@ try {
 
     /* --- CSV export ---------------------------------------------------- */
     if (isset($_GET['export'])) {
-        [$where, $args] = build_filter($_GET);
+        [$where, $args] = build_filter($_GET, 's.');
         $stmt = $pdo->prepare(
-            "SELECT id, created_at, name, email, topic, bio, abstract, status,
-                    review_status, reviewer_notes, verified_at, spam_score, fill_seconds
-               FROM cfp_submissions $where ORDER BY id DESC"
+            "SELECT s.id, s.created_at, s.name, s.email, s.topic, s.bio, s.abstract,
+                    s.status, s.review_status, s.reviewer_notes, s.verified_at,
+                    s.spam_score, s.fill_seconds, e.slug AS event_slug, s.slot_order
+               FROM cfp_submissions s
+               LEFT JOIN events e ON e.id = s.event_id
+               $where ORDER BY s.id DESC"
         );
         $stmt->execute($args);
 
@@ -398,6 +424,21 @@ try {
         }
         echo '</select></div>';
 
+        $events = $pdo->query('SELECT id, slug, title, starts_on FROM events ORDER BY starts_on, slug')
+                      ->fetchAll();
+        echo '<div class="f"><label for="event_id">Scheduled at</label><select id="event_id" name="event_id">',
+             '<option value="">— not scheduled —</option>';
+        foreach ($events as $ev) {
+            $sel = ((string) $p['event_id'] === (string) $ev['id']) ? ' selected' : '';
+            echo '<option value="', (int) $ev['id'], '"', $sel, '>',
+                 h($ev['starts_on'] ?? '????'), ' · ', h($ev['title']), '</option>';
+        }
+        echo '</select><p class="count">Only accepted, verified talks appear on the public agenda.</p></div>';
+
+        echo '<div class="f"><label for="slot_order">Running order</label>',
+             '<input id="slot_order" name="slot_order" type="number" min="0" step="1" value="',
+             (int) $p['slot_order'], '"><p class="count">Low numbers first. Ties fall back to submission order.</p></div>';
+
         echo '<div class="f"><label for="reviewer_notes">Reviewer notes <span style="font-weight:400;color:var(--ink-faint)">(private)</span></label>',
              '<textarea id="reviewer_notes" name="reviewer_notes" rows="3">', h($p['reviewer_notes']), '</textarea></div>';
 
@@ -432,9 +473,9 @@ try {
     }
 
     /* --- List ------------------------------------------------------------ */
-    [$where, $args] = build_filter($_GET);
+    [$where, $args] = build_filter($_GET, 's.');
 
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM cfp_submissions $where");
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM cfp_submissions s $where");
     $stmt->execute($args);
     $total = (int) $stmt->fetchColumn();
 
@@ -442,9 +483,12 @@ try {
     $offset = ($page - 1) * PER_PAGE;
 
     $stmt = $pdo->prepare(
-        "SELECT id, created_at, name, email, topic, status, review_status, spam_score, fill_seconds
-           FROM cfp_submissions $where
-          ORDER BY id DESC LIMIT " . PER_PAGE . " OFFSET " . (int) $offset
+        "SELECT s.id, s.created_at, s.name, s.email, s.topic, s.status, s.review_status,
+                s.spam_score, s.fill_seconds, e.slug AS event_slug
+           FROM cfp_submissions s
+           LEFT JOIN events e ON e.id = s.event_id
+           $where
+          ORDER BY s.id DESC LIMIT " . PER_PAGE . " OFFSET " . (int) $offset
     );
     $stmt->execute($args);
     $rows = $stmt->fetchAll();

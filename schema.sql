@@ -129,6 +129,10 @@ CREATE TABLE IF NOT EXISTS cfp_submissions (
 
   -- Anti-spam telemetry, kept so you can tune the thresholds against real
   -- traffic rather than guesses.
+  -- Scheduling: set in the review console once a talk is accepted.
+  event_id           BIGINT UNSIGNED DEFAULT NULL,
+  slot_order         INT          NOT NULL DEFAULT 0,
+
   spam_score         TINYINT UNSIGNED NOT NULL DEFAULT 0,
   fill_seconds       INT UNSIGNED DEFAULT NULL,
 
@@ -143,7 +147,8 @@ CREATE TABLE IF NOT EXISTS cfp_submissions (
   KEY idx_cfp_verify_token (verify_token_hash),
   KEY idx_cfp_email (email_canonical),
   KEY idx_cfp_status (status),
-  KEY idx_cfp_review_status (review_status)
+  KEY idx_cfp_review_status (review_status),
+  KEY idx_cfp_event (event_id, slot_order)
 ) ENGINE=InnoDB
   ROW_FORMAT=DYNAMIC
   DEFAULT CHARSET=utf8mb4
@@ -182,6 +187,41 @@ CREATE TABLE IF NOT EXISTS cfp_revisions (
 --     ADD COLUMN IF NOT EXISTS reviewer_notes TEXT DEFAULT NULL,
 --     ADD COLUMN IF NOT EXISTS reviewed_at DATETIME DEFAULT NULL,
 --     ADD KEY IF NOT EXISTS idx_cfp_review_status (review_status);
+
+
+-- ---------------------------------------------------------------------------
+-- Events and the published agenda
+-- ---------------------------------------------------------------------------
+
+-- Events are authored in _data/events.yml and synced into this table by
+-- tools/agenda.php sync. Git stays the source of truth for the wording; this
+-- table exists so a talk can point at an event, and so the admin can offer a
+-- real dropdown instead of a free-text field.
+CREATE TABLE IF NOT EXISTS events (
+  id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  slug       VARCHAR(64)  NOT NULL,
+  title      VARCHAR(200) NOT NULL,
+  starts_on  DATE         DEFAULT NULL,
+  location   VARCHAR(160) DEFAULT NULL,
+  created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+                            ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uniq_event_slug (slug),
+  KEY idx_event_date (starts_on)
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Scheduling lives on the submission: which event it is on, and where in the
+-- running order. ON DELETE SET NULL so removing an event unschedules its talks
+-- rather than deleting proposals.
+--
+--   ALTER TABLE cfp_submissions
+--     ADD COLUMN IF NOT EXISTS event_id BIGINT UNSIGNED DEFAULT NULL,
+--     ADD COLUMN IF NOT EXISTS slot_order INT NOT NULL DEFAULT 0,
+--     ADD KEY IF NOT EXISTS idx_cfp_event (event_id, slot_order),
+--     ADD CONSTRAINT fk_cfp_event FOREIGN KEY (event_id)
+--       REFERENCES events (id) ON DELETE SET NULL;
 
 
 -- Single-use form nonces, issued by cfp_token.php when the form is rendered.

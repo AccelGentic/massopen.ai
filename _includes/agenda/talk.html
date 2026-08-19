@@ -1,0 +1,29 @@
+<section class="page-hero">
+  <div class="container">
+    <p class="hero__eyebrow">
+      <a href="{{ '/agenda/' | relative_url }}{{ page.event.slug }}/">{{ page.event.title }}</a>
+      {% if page.event.starts_on and page.event.starts_on != "" %}
+        &middot; <time datetime="{{ page.event.starts_on }}">{{ page.event.starts_on | date: "%-d %B %Y" }}</time>
+      {% endif %}
+      {% if page.event.location and page.event.location != "" %} &middot; {{ page.event.location }}{% endif %}
+    </p>
+    <h1 class="page-hero__title">{{ page.talk.topic }}</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container container--reading" style="max-width:720px;margin:0 auto;">
+    <p class="section__eyebrow">Abstract</p>
+    <div class="section__lead"><p>{{ page.talk.abstract }}</p></div>
+
+    <div class="card" style="margin-top:36px;">
+      <p class="section__eyebrow">Speaker</p>
+      <h2 class="card__title">{{ page.talk.speaker }}</h2>
+      <p class="card__body">{{ page.talk.bio }}</p>
+    </div>
+
+    <p style="margin-top:32px;">
+      <a class="btn btn--ghost" href="{{ '/agenda/' | relative_url }}{{ page.event.slug }}/">&larr; Back to the agenda</a>
+    </p>
+  </div>
+</section>
