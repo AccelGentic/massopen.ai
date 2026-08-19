@@ -181,12 +181,12 @@ CREATE TABLE IF NOT EXISTS cfp_revisions (
 -- Upgrading an existing install (MariaDB supports IF NOT EXISTS here, so this
 -- is safe to re-run):
 --
---   ALTER TABLE cfp_submissions
---     ADD COLUMN IF NOT EXISTS review_status
---       ENUM('new','shortlist','accepted','rejected') NOT NULL DEFAULT 'new',
---     ADD COLUMN IF NOT EXISTS reviewer_notes TEXT DEFAULT NULL,
---     ADD COLUMN IF NOT EXISTS reviewed_at DATETIME DEFAULT NULL,
---     ADD KEY IF NOT EXISTS idx_cfp_review_status (review_status);
+   ALTER TABLE cfp_submissions
+     ADD COLUMN IF NOT EXISTS review_status
+       ENUM('new','shortlist','accepted','rejected') NOT NULL DEFAULT 'new',
+     ADD COLUMN IF NOT EXISTS reviewer_notes TEXT DEFAULT NULL,
+     ADD COLUMN IF NOT EXISTS reviewed_at DATETIME DEFAULT NULL,
+     ADD KEY IF NOT EXISTS idx_cfp_review_status (review_status);
 
 
 -- ---------------------------------------------------------------------------
@@ -216,12 +216,12 @@ CREATE TABLE IF NOT EXISTS events (
 -- running order. ON DELETE SET NULL so removing an event unschedules its talks
 -- rather than deleting proposals.
 --
---   ALTER TABLE cfp_submissions
---     ADD COLUMN IF NOT EXISTS event_id BIGINT UNSIGNED DEFAULT NULL,
---     ADD COLUMN IF NOT EXISTS slot_order INT NOT NULL DEFAULT 0,
---     ADD KEY IF NOT EXISTS idx_cfp_event (event_id, slot_order),
---     ADD CONSTRAINT fk_cfp_event FOREIGN KEY (event_id)
---       REFERENCES events (id) ON DELETE SET NULL;
+   ALTER TABLE cfp_submissions
+     ADD COLUMN IF NOT EXISTS event_id BIGINT UNSIGNED DEFAULT NULL,
+     ADD COLUMN IF NOT EXISTS slot_order INT NOT NULL DEFAULT 0,
+     ADD KEY IF NOT EXISTS idx_cfp_event (event_id, slot_order),
+     ADD CONSTRAINT fk_cfp_event FOREIGN KEY (event_id)
+       REFERENCES events (id) ON DELETE SET NULL;
 
 
 -- Single-use form nonces, issued by cfp_token.php when the form is rendered.
