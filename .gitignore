@@ -6,5 +6,6 @@ _site/
 
 # Never commit the HTTP Basic auth file for cfp_admin.php — anything in the
 # source tree that Jekyll does not exclude is copied into _site and served.
+.htaccess 
 .htpasswd
 *.htpasswd
