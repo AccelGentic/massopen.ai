@@ -1,0 +1,15 @@
+# Start time for each running-order slot on the agenda.
+#
+# Keys are the `slot_order` set in the review console, as strings. A talk whose
+# slot has no entry here falls back to showing the slot number, so adding a
+# ninth slot is a matter of adding a line rather than editing a template.
+"0": "9:30am"
+"1": "10am"
+"2": "10:45am"
+"3": "11:30am"
+"4": "1pm"
+"5": "1:45pm"
+"6": "2:30pm"
+"7": "3:30pm"
+"8": "4:15pm"
+"9": "5pm"

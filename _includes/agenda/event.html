@@ -19,7 +19,15 @@
       <ol class="steps">
         {% for talk in page.event.talks %}
           <li class="step">
-            <span class="step__num accent">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            {%- comment -%}
+              Keyed on the talk's own slot, not forloop.index: a single talk in
+              slot 4 starts at 1pm regardless of being first in the list.
+              An unmapped slot falls back to the number.
+            {%- endcomment -%}
+            {% assign start = site.data.slot_times[talk.slot] %}
+            <span class="step__num accent">
+              {%- if start %}<time>{{ start }}</time>{% else %}{{ talk.slot }}{% endif -%}
+            </span>
             <div class="step__body">
               <h3 class="step__title">
                 <a href="{{ '/agenda/' | relative_url }}{{ page.event.slug }}/{{ talk.slug }}/">{{ talk.topic }}</a>

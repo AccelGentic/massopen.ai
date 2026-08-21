@@ -152,6 +152,9 @@ case 'export':
                 $out .= '        bio: ' . y($t['bio']) . "\n";
                 $out .= '        topic: ' . y($t['topic']) . "\n";
                 $out .= '        abstract: ' . y($t['abstract']) . "\n";
+                // Slot number, not the position in the list: a lone talk in
+                // slot 4 must still show the 1pm start, not the first one.
+                $out .= '        slot: ' . y((string) (int) $t['slot_order']) . "\n";
             }
         }
     }

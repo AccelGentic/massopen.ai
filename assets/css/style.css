@@ -581,3 +581,7 @@ a { color: var(--accent); }
 .card__title a:hover { color: var(--accent); }
 .step__body p a { color: var(--ink-dim); text-decoration: none; }
 .step__body p a:hover { color: var(--accent); }
+
+/* Agenda time slot: wider and smaller than the old two-digit counter. */
+.step__num time { font-size: 1.05rem; white-space: nowrap; }
+.steps .step__num { min-width: 5.5ch; }

@@ -6,6 +6,8 @@
         &middot; <time datetime="{{ page.event.starts_on }}">{{ page.event.starts_on | date: "%-d %B %Y" }}</time>
       {% endif %}
       {% if page.event.location and page.event.location != "" %} &middot; {{ page.event.location }}{% endif %}
+      {% assign start = site.data.slot_times[page.talk.slot] %}
+      {% if start %} &middot; <time>{{ start }}</time>{% endif %}
     </p>
     <h1 class="page-hero__title">{{ page.talk.topic }}</h1>
   </div>

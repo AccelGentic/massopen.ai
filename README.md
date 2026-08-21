@@ -168,7 +168,13 @@ rejected or unverified proposal stay in the database, so no template bug can
 leak them.
 
 Assign a talk to an event in the review console: pick **Scheduled at** and set
-a **Running order** (low numbers first). `status` reports any accepted talk
+a **Running order** (low numbers first).
+
+The running order is shown as a start time, mapped in `_data/slot_times.yml`:
+slot 0 is 9:30am, 1 is 10am, 2 is 10:45am, 3 is 11:30am, 4 is 1pm, 5 is
+1:45pm, 6 is 2:30pm, 7 is 3:30pm, 8 is 4:15pm, 9 is 5pm. Change a time, or add
+another slot, by editing that file — no re-export needed, just a rebuild. A slot with no entry
+falls back to showing its number. `status` reports any accepted talk
 that still has no event. An event with nothing scheduled still appears, saying
 the programme is not announced yet.
 
