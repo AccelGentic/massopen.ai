@@ -196,8 +196,14 @@ give a speaker one, tried in this order:
    comes back on every export. Only those two shapes are accepted — the value
    goes straight into an `<img src>` on a public page.
 
-With neither, the card shows the speaker's initials, so a photo that hasn't
+With neither, the speaker card shows their initials, so a photo that hasn't
 arrived yet leaves a filled circle rather than a broken image.
+
+The photo also appears as a small circle beside the talk in the event's
+running order. That one is decoration, so it is there only if the photo is —
+no initials — and the rows reserve space for it only when somebody on that
+bill has one, which keeps the talk titles lined up without carving out an
+empty column on a list that has no photos at all.
 
 Square images crop best — they're displayed as a 132px circle (104px on a
 phone). Keep them small; nothing resizes them at build time.
