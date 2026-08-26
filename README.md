@@ -204,6 +204,31 @@ phone). Keep them small; nothing resizes them at build time.
 
 Speakers do not upload photos through the CFP form; an organiser adds them.
 
+There is a script for the common case — lifting the photos out of the event's
+announcement post on the Ghost site:
+
+```bash
+tools/fetch-headshots.sh --dry-run     # show what it would take, and from where
+tools/fetch-headshots.sh               # write them into assets/img/speakers/
+```
+
+It reads the scheduled speakers for the event out of `_data/agenda.yml`, then
+gives each image to whichever of them is named closest to it — alt text first,
+then the caption below, then the words above. Files land under the exact names
+the templates look for, so a rebuild is all that's left. Existing files are
+kept unless you pass `--force`.
+
+Matching a photo to a name by scraping is guesswork, so the script is built to
+be checked rather than trusted: `--dry-run` prints the plan without writing
+anything, an image it can't place goes to `assets/img/speakers/unmatched/`
+with the caption it sat beside, and it always ends by naming the speakers
+still without a photo. Look at the faces before you publish.
+
+`--event <slug>` and `--url <post>` point it at a different event. `--html
+<file>` parses a page you saved from the browser, for when the site refuses a
+scripted fetch. `--max-width <px>` downscales the result if ImageMagick is
+installed. Nothing in `tools/` is published — `_config.yml` excludes it.
+
 ### Event images
 
 An event can carry one image: a banner across the top of its agenda page, and
