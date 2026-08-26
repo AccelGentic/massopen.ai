@@ -1,8 +1,10 @@
+require 'cgi'
 require 'feedjira'
 require 'httparty'
 
 # Pulls the latest posts from the Ghost newsletter into a Jekyll collection so
-# the home page can list them.
+# the home page can list them, each with its title, excerpt, date and the
+# featured image the post was published with.
 #
 # The newsletter is a separate service, so it WILL occasionally be unreachable
 # — a restart, a DNS blip, an expired certificate. None of that should be able
@@ -132,6 +134,31 @@ module Jekyll
       nil
     end
 
+    # The first <img> in a chunk of post HTML. Ghost renders the featured image
+    # at the top of the body, so this is the same picture the feed's own
+    # <media:content> names — just the long way round.
+    IMG_SRC = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i.freeze
+
+    # The featured image for an entry, or nil.
+    #
+    # Ghost puts it in <media:content>, which Feedjira exposes as entry.image
+    # (it reads <media:thumbnail> and <enclosure> into the same field, so an
+    # unrelated feed that uses either still works). Not every feed carries one,
+    # so fall back to scraping the body — and if that finds nothing either, the
+    # entry simply has no picture and the template leaves the space out.
+    def image_for(entry)
+      candidates = []
+      candidates << entry.image if entry.respond_to?(:image)
+      %i[content summary].each do |field|
+        next unless entry.respond_to?(field)
+
+        html = entry.public_send(field)
+        candidates << CGI.unescapeHTML(html[IMG_SRC, 1].to_s) if html.is_a?(String)
+      end
+
+      candidates.compact.map(&:strip).find { |url| url.match?(%r{\A(https?:)?//}) }
+    end
+
     def build_document(site, collection, entry)
       title = entry.title.to_s.strip
       return nil if title.empty?
@@ -145,6 +172,7 @@ module Jekyll
       doc.data['date']    = entry.published || Time.now
       doc.data['link']    = entry.url
       doc.data['excerpt'] = entry.summary
+      doc.data['image']   = image_for(entry)
       doc
     rescue StandardError => e
       # One malformed entry should not lose the whole feed.

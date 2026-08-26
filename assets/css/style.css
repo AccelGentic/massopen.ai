@@ -343,6 +343,39 @@ a { color: var(--accent); }
 .date__title { margin: 0 0 6px; font-size: 1.2rem; color: #fff; }
 .date__body p { margin: 0; color: var(--ink-dim); }
 
+/* News post (.date--post): the post's featured image beside its title.
+   The picture is decoration — see sections/news.html — so a post whose feed
+   entry carried no image simply has none and the text runs the full width,
+   rather than leaving a gap for one that is never coming. The fixed shape is
+   the point of the crop: a portrait photo and a wide banner still line the
+   titles up with each other. */
+.date__body { min-width: 0; }
+.date__meta { margin: 0 0 10px; font-size: 0.92rem; }
+.date__shot {
+  flex: 0 0 auto;
+  display: block;
+  line-height: 0;
+}
+.date__thumb {
+  width: 168px;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(90, 169, 255, 0.08);
+  transition: border-color 0.15s ease;
+}
+.date__shot:hover .date__thumb { border-color: var(--accent); }
+
+@media (max-width: 640px) {
+  /* Stack rather than squeeze: 168px beside the excerpt leaves a column of
+     text too narrow to read on a phone. Only the news items stack — the
+     schedule lists share .date and want their date beside the title. */
+  .date--post { flex-direction: column; gap: 16px; }
+  .date--post .date__shot { align-self: stretch; }
+  .date__thumb { width: 100%; aspect-ratio: 16 / 9; }
+}
+
 
 /* Essay link (Read) ------------------------------------------------------- */
 .essay-link {

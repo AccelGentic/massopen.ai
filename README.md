@@ -121,6 +121,14 @@ section on the next deploy; with it the site keeps showing the most recent
 posts it ever saw. Every failure logs a warning naming what went wrong, and
 the request has a 10-second timeout so a hung feed cannot hang the build.
 
+Each post is listed with its title, date, excerpt and the featured image it
+was published with. Ghost names that image in the entry's `<media:content>`;
+where a feed doesn't carry one, the plugin falls back to the first `<img>` in
+the post body, and where there is no picture at all the entry is listed
+without one rather than leaving a gap for it. The thumbnail is decoration —
+the title beside it is the link — so it is hidden from screen readers and
+kept out of the tab order.
+
 The URL defaults to `https://news.massopen.ai/rss` and can be overridden in
 `_config.yml`:
 

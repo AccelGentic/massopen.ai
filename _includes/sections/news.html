@@ -15,15 +15,29 @@
     {% else %}
     <ol class="dates">
       {% for item in sorted_feed limit: 5 %}
-        <li class="date">
-	<div class="date__body">
-	  <h3 class="date__title">
-		  <a href="{{ item.link }}" rel="noopener noreferrer">
-        {{ item.title }}
-		  </a></h3>
-       Published: {{ item.date | date: "%B %d, %Y" }}
-      <p>{{ item.excerpt }}</p>
-	</li>
+        <li class="date date--post">
+          {%- comment -%}
+            The post's featured image, when the feed carried one. It is
+            decoration — the title beside it is the link, and the alt text
+            would only repeat it — so it is hidden from assistive tech and
+            taken out of the tab order, and a post without one simply has no
+            picture rather than a placeholder.
+          {%- endcomment -%}
+          {% if item.image %}
+            <a class="date__shot" tabindex="-1" aria-hidden="true"
+               href="{{ item.link }}" rel="noopener noreferrer">
+              <img class="date__thumb" src="{{ item.image | escape }}" alt=""
+                   loading="lazy" decoding="async">
+            </a>
+          {% endif %}
+          <div class="date__body">
+            <h3 class="date__title">
+              <a href="{{ item.link }}" rel="noopener noreferrer">{{ item.title }}</a>
+            </h3>
+            <p class="date__meta">Published: {{ item.date | date: "%B %d, %Y" }}</p>
+            <p>{{ item.excerpt }}</p>
+          </div>
+        </li>
       {% endfor %}
     </ol>
     {% endif %}
@@ -31,4 +45,3 @@
     <div style="min-height: 58px;max-width: 440px;margin: 0 auto;width: 100%"><script src="https://cdn.jsdelivr.net/ghost/signup-form@~0.3/umd/signup-form.min.js" data-button-color="#FF1A75" data-button-text-color="#FFFFFF" data-site="https://news.massopen.ai/" data-locale="en" async></script></div>
   </div>
 </section>
-
