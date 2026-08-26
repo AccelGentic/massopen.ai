@@ -18,10 +18,13 @@
     <p class="section__eyebrow">Abstract</p>
     <div class="section__lead"><p>{{ page.talk.abstract }}</p></div>
 
-    <div class="card" style="margin-top:36px;">
-      <p class="section__eyebrow">Speaker</p>
-      <h2 class="card__title">{{ page.talk.speaker }}</h2>
-      <p class="card__body">{{ page.talk.bio }}</p>
+    <div class="card speaker" style="margin-top:36px;">
+      {% include agenda/headshot.html speaker=page.talk.speaker headshot=page.talk.headshot %}
+      <div class="speaker__body">
+        <p class="section__eyebrow">Speaker</p>
+        <h2 class="card__title">{{ page.talk.speaker }}</h2>
+        <p class="card__body">{{ page.talk.bio }}</p>
+      </div>
     </div>
 
     <p style="margin-top:32px;">

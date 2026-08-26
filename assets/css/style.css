@@ -585,3 +585,41 @@ a { color: var(--accent); }
 /* Agenda time slot: wider and smaller than the old two-digit counter. */
 .step__num time { font-size: 1.05rem; white-space: nowrap; }
 .steps .step__num { min-width: 5.5ch; }
+
+/* Speaker card: headshot beside the bio -----------------------------------
+   The image and the initials placeholder share .headshot so the card keeps
+   the same shape either way — a speaker whose photo hasn't arrived yet does
+   not reflow the page when it does. */
+.speaker {
+  display: flex;
+  gap: 26px;
+  align-items: flex-start;
+}
+.speaker__body { min-width: 0; }
+.headshot {
+  flex: 0 0 auto;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgba(90, 169, 255, 0.08);
+  border: 1px solid var(--border-strong);
+}
+.headshot--initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  /* Stack rather than squeeze: a 132px circle beside a bio leaves the text
+     in a column too narrow to read on a phone. */
+  .speaker { flex-direction: column; gap: 20px; }
+  .headshot { width: 104px; height: 104px; }
+  .headshot--initials { font-size: 1.9rem; }
+}

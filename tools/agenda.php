@@ -106,7 +106,7 @@ case 'export':
     $rows = $pdo->query(
         "SELECT e.slug AS event_slug, e.title AS event_title,
                 e.starts_on, e.location,
-                s.id, s.name, s.bio, s.topic, s.abstract, s.slot_order
+                s.id, s.name, s.bio, s.topic, s.abstract, s.headshot, s.slot_order
            FROM events e
            LEFT JOIN cfp_submissions s
              ON s.event_id = e.id
@@ -152,6 +152,11 @@ case 'export':
                 $out .= '        bio: ' . y($t['bio']) . "\n";
                 $out .= '        topic: ' . y($t['topic']) . "\n";
                 $out .= '        abstract: ' . y($t['abstract']) . "\n";
+                // Only when set. An empty value here would shadow the
+                // convention lookup the template does on the speaker's name.
+                if (($t['headshot'] ?? '') !== '') {
+                    $out .= '        headshot: ' . y($t['headshot']) . "\n";
+                }
                 // Slot number, not the position in the list: a lone talk in
                 // slot 4 must still show the 1pm start, not the first one.
                 $out .= '        slot: ' . y((string) (int) $t['slot_order']) . "\n";
