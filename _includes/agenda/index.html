@@ -12,7 +12,11 @@
     <ul class="cards">
       {% for event in page.events %}
         <li class="card">
-          <span class="card__icon accent" aria-hidden="true">◇</span>
+          {%- capture media -%}
+            {% include agenda/event-image.html slug=event.slug title=event.title class="card__media" %}
+          {%- endcapture -%}
+          {%- assign media = media | strip -%}
+          {% if media != "" %}{{ media }}{% else %}<span class="card__icon accent" aria-hidden="true">◇</span>{% endif %}
           <h3 class="card__title">
             <a href="{{ '/agenda/' | relative_url }}{{ event.slug }}/">{{ event.title }}</a>
           </h3>

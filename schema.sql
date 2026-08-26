@@ -109,6 +109,14 @@ CREATE TABLE IF NOT EXISTS cfp_submissions (
   topic              VARCHAR(200) NOT NULL,
   abstract           TEXT         NOT NULL,
 
+  -- Where the speaker's headshot lives: a path under the site
+  -- ('/assets/img/speakers/reva-schwartz.jpg') or a full https:// URL. Set by
+  -- an organiser in the review console, never by the submitter — see
+  -- cfp_admin.php, which is the only thing that validates it. NULL means the
+  -- agenda falls back to a file named after the speaker, then to their
+  -- initials, so a missing photo is never a broken image.
+  headshot           VARCHAR(255) DEFAULT NULL,
+
   -- `status` is the SUBMITTER's axis: did they verify their address?
   -- cfp_confirm.php matches on status='pending', so review states must never
   -- be added to this enum or triaging a proposal would break verification.
@@ -187,6 +195,11 @@ CREATE TABLE IF NOT EXISTS cfp_revisions (
      ADD COLUMN IF NOT EXISTS reviewer_notes TEXT DEFAULT NULL,
      ADD COLUMN IF NOT EXISTS reviewed_at DATETIME DEFAULT NULL,
      ADD KEY IF NOT EXISTS idx_cfp_review_status (review_status);
+
+-- The speaker headshot shown next to the bio on a talk page:
+--
+   ALTER TABLE cfp_submissions
+     ADD COLUMN IF NOT EXISTS headshot VARCHAR(255) DEFAULT NULL;
 
 
 -- ---------------------------------------------------------------------------

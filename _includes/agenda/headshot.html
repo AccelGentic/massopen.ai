@@ -1,0 +1,51 @@
+{%- comment -%}
+  A speaker's headshot, or their initials if we don't have one.
+
+    include.speaker   the speaker's name (required)
+    include.headshot  an explicit path or URL, if the export carried one
+
+  Two ways to give a speaker a photo, tried in this order:
+
+    1. `headshot:` on the talk in _data/agenda.yml — set in the review console,
+       so it survives a re-export. Either a site path ("/assets/img/speakers/
+       reva-schwartz.jpg") or a full https:// URL.
+    2. A file dropped in assets/img/speakers/ named after the speaker:
+       "Reva Schwartz" -> assets/img/speakers/reva-schwartz.jpg. Matched on the
+       slugified basename, so the extension and the capitalisation don't matter.
+
+  With neither, the initials stand in: a speaker whose photo hasn't arrived
+  yet leaves a filled circle rather than a broken image or a hole in the card.
+{%- endcomment -%}
+
+{%- assign key = include.speaker | slugify -%}
+{%- assign src = include.headshot | default: "" | strip -%}
+
+{%- if src == "" -%}
+  {%- for file in site.static_files -%}
+    {%- if file.path contains "/assets/img/speakers/" -%}
+      {%- assign base = file.basename | slugify -%}
+      {%- if base == key -%}
+        {%- assign src = file.path -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if src != "" -%}
+  {%- if src contains "://" -%}
+    {%- assign href = src -%}
+  {%- else -%}
+    {%- assign href = src | relative_url -%}
+  {%- endif -%}
+  <img class="headshot" src="{{ href }}" alt="{{ include.speaker }}"
+       width="132" height="132" loading="lazy" decoding="async">
+{%- else -%}
+  {%- assign parts = include.speaker | strip | split: " " -%}
+  {%- assign initials = parts.first | slice: 0, 1 -%}
+  {%- if parts.size > 1 -%}
+    {%- assign surname = parts.last | slice: 0, 1 -%}
+    {%- assign initials = initials | append: surname -%}
+  {%- endif -%}
+  <span class="headshot headshot--initials" aria-hidden="true">{{ initials | upcase }}</span>
+{%- endif -%}

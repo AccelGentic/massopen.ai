@@ -1,5 +1,10 @@
 <section class="page-hero">
   <div class="container">
+    {%- capture media -%}
+      {% include agenda/event-image.html slug=page.event.slug title=page.event.title class="event-banner" %}
+    {%- endcapture -%}
+    {%- assign media = media | strip -%}
+    {% if media != "" %}<div class="event-banner__wrap">{{ media }}</div>{% endif %}
     <p class="hero__eyebrow">
       {% if page.event.starts_on and page.event.starts_on != "" %}
         <time datetime="{{ page.event.starts_on }}">{{ page.event.starts_on | date: "%-d %B %Y" }}</time>

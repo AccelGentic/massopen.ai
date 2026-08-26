@@ -1,0 +1,57 @@
+{%- comment -%}
+  An event's image — the banner at the top of its agenda page, and the
+  thumbnail on the card for it at /agenda/. Emits an <img>, or nothing at all
+  when the event has no image, so callers can capture this and fall back.
+
+    include.slug   the event's slug (required)
+    include.title  the event's title, used as the alt text
+    include.class  class for the <img>
+
+  Two ways to give an event an image, tried in this order:
+
+    1. `image:` on the event in _data/events.yml, where the rest of the event's
+       wording already lives. Either a site path ("/assets/img/events/
+       sept15-dc.jpg") or a full https:// URL. `image_alt:` overrides the alt
+       text, which is worth setting when the picture carries information the
+       title doesn't.
+    2. A file dropped in assets/img/events/ named after the slug:
+       sept15-dc -> assets/img/events/sept15-dc.jpg. Matched on the slugified
+       basename, so the extension and the capitalisation don't matter.
+
+  Nothing is generated from _data/agenda.yml here: that file is rewritten by
+  every `agenda.php export`, and an event's picture is wording, not schedule.
+{%- endcomment -%}
+
+{%- assign src = "" -%}
+{%- assign alt = include.title -%}
+
+{%- for event in site.data.events -%}
+  {%- if event.slug == include.slug -%}
+    {%- assign src = event.image | default: "" | strip -%}
+    {%- if event.image_alt and event.image_alt != "" -%}
+      {%- assign alt = event.image_alt -%}
+    {%- endif -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if src == "" -%}
+  {%- for file in site.static_files -%}
+    {%- if file.path contains "/assets/img/events/" -%}
+      {%- assign base = file.basename | slugify -%}
+      {%- if base == include.slug -%}
+        {%- assign src = file.path -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if src != "" -%}
+  {%- if src contains "://" -%}
+    {%- assign href = src -%}
+  {%- else -%}
+    {%- assign href = src | relative_url -%}
+  {%- endif -%}
+  <img class="{{ include.class }}" src="{{ href }}" alt="{{ alt }}" loading="lazy" decoding="async">
+{%- endif -%}

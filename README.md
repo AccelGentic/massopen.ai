@@ -134,8 +134,8 @@ build — the site should still come out, with warnings.
 ## Agenda — published talks
 
 `/agenda/` lists every event; each event page shows its running order; each
-talk has its own page with the speaker's name and bio, the event and date, and
-the topic and abstract.
+talk has its own page with the speaker's headshot, name and bio, the event and
+date, and the topic and abstract.
 
 These are real generated pages (`_plugins/agenda.rb`), not a JavaScript
 widget, so every talk has a URL a speaker can share.
@@ -163,9 +163,9 @@ talks are scheduled) and a machine-readable `starts_on`.
 
 Only talks that are **both** `review_status = 'accepted'` **and**
 `status = 'verified'`, and only these fields: speaker name, bio, topic,
-abstract. Emails, IP addresses, reviewer notes, spam telemetry and every
-rejected or unverified proposal stay in the database, so no template bug can
-leak them.
+abstract, headshot. Emails, IP addresses, reviewer notes, spam telemetry and
+every rejected or unverified proposal stay in the database, so no template bug
+can leak them.
 
 Assign a talk to an event in the review console: pick **Scheduled at** and set
 a **Running order** (low numbers first).
@@ -179,6 +179,58 @@ that still has no event. An event with nothing scheduled still appears, saying
 the programme is not announced yet.
 
 `_data/agenda.yml` is generated — do not hand-edit it; the next export wins.
+
+### Speaker headshots
+
+A talk page shows the speaker's photo next to their bio. There are two ways to
+give a speaker one, tried in this order:
+
+1. **A file named after them.** Drop the image in `assets/img/speakers/` named
+   after the speaker — `Reva Schwartz` → `assets/img/speakers/reva-schwartz.jpg`.
+   The match is on the slugified filename, so `Reva-Schwartz.JPG` works too and
+   the extension doesn't matter. Nothing to re-export: this is a build-time
+   lookup on the speaker's name, so it survives the next `agenda.php export`.
+2. **The `Headshot` field in the review console.** A path under
+   `/assets/img/speakers/`, or a full `https://` URL if the photo is hosted
+   elsewhere. Stored in the database, so it takes precedence over a file and
+   comes back on every export. Only those two shapes are accepted — the value
+   goes straight into an `<img src>` on a public page.
+
+With neither, the card shows the speaker's initials, so a photo that hasn't
+arrived yet leaves a filled circle rather than a broken image.
+
+Square images crop best — they're displayed as a 132px circle (104px on a
+phone). Keep them small; nothing resizes them at build time.
+
+Speakers do not upload photos through the CFP form; an organiser adds them.
+
+### Event images
+
+An event can carry one image: a banner across the top of its agenda page, and
+the thumbnail on its card at `/agenda/`. Same two routes as a headshot:
+
+1. **A file named after the slug** — `assets/img/events/sept15-dc.jpg` for the
+   event whose `slug` is `sept15-dc`. Case and extension don't matter.
+2. **`image:` on the event in `_data/events.yml`**, which is where the rest of
+   the event's wording already lives. A path under the site or a full
+   `https://` URL, and it wins over a file. Add `image_alt:` when the picture
+   carries something the title doesn't; the title is the alt text otherwise.
+
+```yaml
+- slug: sept15-dc
+  image: /assets/img/events/sept15-dc.jpg
+  image_alt: Speakers on stage at the DC State of the Stack venue
+```
+
+An event with no image renders exactly as before — the card keeps its ◇ and
+the agenda page starts at the title. Nothing here touches `_data/agenda.yml`:
+that file is rewritten by every export, and an event's picture is wording, not
+schedule, so it belongs in git with the rest of the event.
+
+Wide images work best. The banner crops to a strip (320px tall at most, less
+on a phone) and the thumbnail to 16:9, both with `object-fit: cover` — so a
+1200×630 post header, the usual shape, lands well in both. Nothing is resized
+at build time, so save them at a sensible size first.
 
 ## Call for papers
 
@@ -283,7 +335,8 @@ Setting both is fine and is the belt-and-braces option.
 
 #### What you can edit
 
-Name, email, topic, bio, abstract, review status and private reviewer notes.
+Name, email, topic, bio, abstract, headshot, review status and private
+reviewer notes.
 Every change is written to `cfp_revisions` with the field, the old and new
 values, and who made it — these are words someone else wrote, so the original
 is always recoverable.
@@ -300,9 +353,9 @@ a shortlist with a committee that doesn't need a login.
 
 #### Upgrading an existing database
 
-The review columns and the revision table are new. `schema.sql` carries the
-`ALTER TABLE … ADD COLUMN IF NOT EXISTS` statements near the CFP section; they
-are safe to re-run.
+The review columns, the revision table and `headshot` are new. `schema.sql`
+carries the `ALTER TABLE … ADD COLUMN IF NOT EXISTS` statements near the CFP
+section; they are safe to re-run.
 
 ### CFP settings
 

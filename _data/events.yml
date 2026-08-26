@@ -8,6 +8,12 @@
 #   title      shown on the home page and at the top of the agenda
 #   location   optional, shown under the agenda heading
 #   body       home-page teaser only; not used by the agenda
+#   image      optional; banner at the top of the event's agenda page and the
+#              thumbnail on its card at /agenda/. A path under the site
+#              ("/assets/img/events/sept15-dc.jpg") or a full https:// URL.
+#              Leave it out and the agenda looks for a file named after the
+#              slug in assets/img/events/; with neither, the card keeps the ◇.
+#   image_alt  optional; alt text for that image. Defaults to the title.
 - slug: sept15-dc
   date: "Sept 15, 2026"
   starts_on: 2026-09-15

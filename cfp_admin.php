@@ -26,10 +26,26 @@ require __DIR__ . '/subscribe_lib.php';
 const PER_PAGE = 50;
 
 /** Fields an organiser may change. Everything else is read-only. */
-const EDITABLE = ['name', 'email', 'topic', 'bio', 'abstract', 'review_status',
-                  'reviewer_notes', 'event_id', 'slot_order'];
+const EDITABLE = ['name', 'email', 'topic', 'bio', 'abstract', 'headshot',
+                  'review_status', 'reviewer_notes', 'event_id', 'slot_order'];
 
 const REVIEW_STATES = ['new', 'shortlist', 'accepted', 'rejected'];
+
+/**
+ * Is this a headshot we are willing to publish?
+ *
+ * Either a path to a file in the site's own speakers directory, or an https
+ * URL. No traversal, no other schemes, nothing protocol-relative.
+ */
+function valid_headshot(string $v): bool
+{
+    if (str_starts_with($v, '/assets/img/speakers/')) {
+        return !str_contains($v, '..') && preg_match('~^[A-Za-z0-9/._-]+$~', $v) === 1;
+    }
+
+    return str_starts_with($v, 'https://')
+        && filter_var($v, FILTER_VALIDATE_URL) !== false;
+}
 
 /* ---------------------------------------------------------------------------
  * Authentication guard
@@ -288,6 +304,14 @@ try {
                 http_response_code(422);
                 exit('That email address is not valid.');
             }
+            // The headshot is written straight into an <img src> on a public
+            // page, so only two shapes are allowed: a file we serve ourselves
+            // under /assets/img/speakers/, or an https:// URL. That rules out
+            // javascript:, data: and protocol-relative values.
+            if ($field === 'headshot' && $new !== '' && !valid_headshot($new)) {
+                http_response_code(422);
+                exit('A headshot must be a path under /assets/img/speakers/ or an https:// URL.');
+            }
             if ($new !== (string) $before[$field]) {
                 $changes[$field] = $new;
             }
@@ -447,6 +471,11 @@ try {
              '<p class="count">Changing this does not re-run verification.</p></div>';
         echo '<div class="f"><label for="topic">Topic</label><input id="topic" name="topic" maxlength="200" value="', h($p['topic']), '"></div>';
         echo '<div class="f"><label for="bio">Speaker bio</label><textarea id="bio" name="bio" rows="5" maxlength="1500">', h($p['bio']), '</textarea></div>';
+        echo '<div class="f"><label for="headshot">Headshot</label>',
+             '<input id="headshot" name="headshot" maxlength="255" value="', h((string) $p['headshot']), '">',
+             '<p class="count">Optional. A path like <code>/assets/img/speakers/jane-doe.jpg</code> or an https:// URL. ',
+             'Leave it empty and the agenda looks for <code>assets/img/speakers/&lt;speaker-name&gt;.jpg</code>, ',
+             'then falls back to the speaker\'s initials.</p></div>';
         echo '<div class="f"><label for="abstract">Abstract</label><textarea id="abstract" name="abstract" rows="10" maxlength="2000">', h($p['abstract']), '</textarea></div>';
 
         echo '<button type="submit" class="btn btn--primary">Save changes</button>',
