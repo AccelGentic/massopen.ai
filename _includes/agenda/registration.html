@@ -1,0 +1,69 @@
+{%- comment -%}
+  How to register for an event — or nothing at all, for an event that has
+  nowhere to send people yet.
+
+    include.slug   the event's slug (required)
+
+  Authored per event in _data/events.yml, where the rest of the event's
+  wording already lives. Never in _data/agenda.yml: every `agenda.php export`
+  rewrites that file, and how to register is wording, not schedule.
+
+  Every field is optional, so an event carries as much or as little as it has:
+
+    registration:
+      status:  open | soon | closed. Picks the heading and how loud the
+               button is. Defaults to open.
+      label:   overrides the heading that status would pick, for an event
+               that calls it something else ("Tickets", "Free — RSVP").
+      price:   free text, so it can read "$50 per person" or "Free".
+      url:     where the button goes. No url, no button — which is what a
+               "registration opens soon" event with no list to join wants.
+      cta:     the button's wording. Defaults per status.
+      note:    a line under the button. HTML is allowed here, as it is
+               elsewhere in _data/events.yml.
+
+  An event with no `registration:` key renders nothing at all.
+{%- endcomment -%}
+
+{%- assign reg_found = false -%}
+{%- for event in site.data.events -%}
+  {%- if event.slug == include.slug and event.registration -%}
+    {%- assign reg = event.registration -%}
+    {%- assign reg_found = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if reg_found -%}
+  {%- assign status = reg.status | default: "open" -%}
+  {%- if status == "soon" -%}
+    {%- assign heading = "Registration opens soon" -%}
+    {%- assign cta = "Get notified" -%}
+    {%- assign btn = "btn--ghost" -%}
+  {%- elsif status == "closed" -%}
+    {%- assign heading = "Registration closed" -%}
+    {%- assign cta = "Event details" -%}
+    {%- assign btn = "btn--ghost" -%}
+  {%- else -%}
+    {%- assign heading = "Registration" -%}
+    {%- assign cta = "Register" -%}
+    {%- assign btn = "btn--primary" -%}
+  {%- endif -%}
+  {%- if reg.label and reg.label != "" -%}{%- assign heading = reg.label -%}{%- endif -%}
+  {%- if reg.cta and reg.cta != "" -%}{%- assign cta = reg.cta -%}{%- endif -%}
+
+  <div class="register">
+    <p class="register__label">{{ heading }}</p>
+    {%- if reg.price and reg.price != "" %}
+    <p class="register__price">{{ reg.price }}</p>
+    {%- endif %}
+    {%- if reg.url and reg.url != "" %}
+    <p class="register__action">
+      <a class="btn {{ btn }}" href="{{ reg.url }}">{{ cta }}</a>
+    </p>
+    {%- endif %}
+    {%- if reg.note and reg.note != "" %}
+    <p class="register__note">{{ reg.note }}</p>
+    {%- endif %}
+  </div>
+{%- endif -%}

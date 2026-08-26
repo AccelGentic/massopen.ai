@@ -271,6 +271,40 @@ on a phone) and the thumbnail to 16:9, both with `object-fit: cover` — so a
 1200×630 post header, the usual shape, lands well in both. Nothing is resized
 at build time, so save them at a sensible size first.
 
+### Registration
+
+How to register differs per event — ours is sometimes a partner's ticketing
+page, sometimes a "not yet, join the list", sometimes nothing at all — so it is
+authored per event under `registration:` in `_data/events.yml`, and shown as a
+panel under the title on that event's agenda page.
+
+```yaml
+- slug: sept15-dc
+  registration:
+    status: open
+    price: $50 per person
+    url: https://dcstateofthestack.org/registration/
+    cta: Register at State of the Stack
+    note: 'Registration is handled by the DC State of the Stack event site.
+      <a href="mailto:massopen@massopen.ai">Ask about group discounts</a>.'
+```
+
+Every field is optional:
+
+| field    | what it does |
+| -------- | ------------ |
+| `status` | `open` (default), `soon` or `closed`. Sets the heading and how loud the button is — `open` gets the filled button, the others the ghost one. |
+| `label`  | Overrides the heading `status` would pick, for an event that calls it something else ("Tickets", "Free — RSVP"). |
+| `price`  | Free text, so it reads "$50 per person" or "Free" as needed. |
+| `url`    | Where the button goes. No `url`, no button. |
+| `cta`    | The button's wording. Defaults per status. |
+| `note`   | A line under the button. HTML is allowed, as elsewhere in this file. |
+
+Leave `registration:` out entirely and the panel does not render — which is
+what an event with nowhere to send people yet wants. As with images, none of
+this touches `_data/agenda.yml`: how to register is wording, not schedule, so
+it survives the next `agenda.php export`.
+
 ## Call for papers
 
 `/cfp/` collects talk proposals — name, email, speaker bio, speaking topic and

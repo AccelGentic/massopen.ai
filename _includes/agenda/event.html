@@ -12,6 +12,7 @@
       {% if page.event.location and page.event.location != "" %} &middot; {{ page.event.location }}{% endif %}
     </p>
     <h1 class="page-hero__title">{{ page.event.title }}</h1>
+    {% include agenda/registration.html slug=page.event.slug %}
   </div>
 </section>
 

@@ -16,6 +16,11 @@
 #              Leave it out and the agenda looks for a file named after the
 #              slug in assets/img/events/; with neither, the card keeps the ◇.
 #   image_alt  optional; alt text for that image. Defaults to the title.
+#   registration
+#              optional; how to register, shown under the title on the event's
+#              agenda page. See _includes/agenda/registration.html for the
+#              fields. Omit it entirely for an event with nowhere to send
+#              people yet — it then renders nothing.
 - slug: sept15-dc
   image: /assets/img/events/sept15-dc.jpg
   image_alt: Cherry blossoms in full bloom on the Potomac - image courtesy of Yeon Choi (@yeonji12) at Unsplash
@@ -24,6 +29,13 @@
   title: Agentic 101 - Washington, DC (State of the Stack)
   location: Washington, DC
   body: "Our inaugural Agentic 101 event! <a href=\"agenda/sept15-dc/\">(agenda)</a>"
+  registration:
+    status: open
+    price: $50 per person
+    url: https://dcstateofthestack.org/registration/
+    cta: Register at State of the Stack
+    note: 'Registration is handled by the DC State of the Stack event site.
+      <a href="mailto:massopen@massopen.ai">Ask about group discounts</a>.'
 
 - slug: oct01-bos
   date: "Oct 1, 2026"
@@ -31,6 +43,11 @@
   title: Agentic 101 - Boston, MA (Glasswing Ventures)
   location: Glasswing Ventures, Boston, MA
   body: "Our next Agentic 101 will be in Boston at Glasswing Ventures. <a href=\"agenda/oct01-bos\">(agenda)</a>"
+  registration:
+    status: soon
+    price: $50 per person
+    url: https://news.massopen.ai/
+    cta: Get notified when registration opens
 
 - slug: oct17-nyc
   date: "October 17, 2026"

@@ -513,6 +513,44 @@ a { color: var(--accent); }
   text-shadow: 0 0 24px rgba(90, 169, 255, 0.5);
 }
 
+/* Registration panel under an event's title. Authored per event in
+   _data/events.yml — see agenda/registration.html — and every row of it is
+   optional, so the panel is only as tall as that event's details. Centered
+   to sit under the centered .page-hero title. */
+.register {
+  max-width: 520px;
+  margin: 34px auto 0;
+  padding: 22px 26px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.register__label {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+.register__price {
+  margin: 8px 0 0;
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.register__action { margin: 18px 0 0; }
+.register__note {
+  margin: 14px 0 0;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  /* A full-width tap target beats a button floating in the middle. */
+  .register .btn { display: block; }
+}
+
 /* Screen-reader-only helper. */
 .visually-hidden {
   position: absolute;
