@@ -3,6 +3,13 @@
 
     include.speaker   the speaker's name (required)
     include.headshot  an explicit path or URL, if the export carried one
+    include.class     extra class on the image, for a size other than the
+                      default 132px circle
+    include.size      that size in pixels, for the width/height attributes
+    include.fallback  "none" to emit nothing at all when there is no photo,
+                      rather than the initials. Use it where the picture is
+                      decoration — a list that reads perfectly well without
+                      it — and keep the initials where a face is the point.
 
   Two ways to give a speaker a photo, tried in this order:
 
@@ -17,6 +24,7 @@
   yet leaves a filled circle rather than a broken image or a hole in the card.
 {%- endcomment -%}
 
+{%- assign size = include.size | default: 132 -%}
 {%- assign key = include.speaker | slugify -%}
 {%- assign src = include.headshot | default: "" | strip -%}
 
@@ -38,8 +46,9 @@
   {%- else -%}
     {%- assign href = src | relative_url -%}
   {%- endif -%}
-  <img class="headshot" src="{{ href }}" alt="{{ include.speaker }}"
-       width="132" height="132" loading="lazy" decoding="async">
+  <img class="headshot {{ include.class }}" src="{{ href }}" alt="{{ include.speaker }}"
+       width="{{ size }}" height="{{ size }}" loading="lazy" decoding="async">
+{%- elsif include.fallback == "none" -%}
 {%- else -%}
   {%- assign parts = include.speaker | strip | split: " " -%}
   {%- assign initials = parts.first | slice: 0, 1 -%}
@@ -47,5 +56,5 @@
     {%- assign surname = parts.last | slice: 0, 1 -%}
     {%- assign initials = initials | append: surname -%}
   {%- endif -%}
-  <span class="headshot headshot--initials" aria-hidden="true">{{ initials | upcase }}</span>
+  <span class="headshot headshot--initials {{ include.class }}" aria-hidden="true">{{ initials | upcase }}</span>
 {%- endif -%}

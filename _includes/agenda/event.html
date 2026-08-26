@@ -21,6 +21,21 @@
     <h2 class="section__title">Speakers</h2>
 
     {% if page.event.talks and page.event.talks.size > 0 %}
+      {%- comment -%}
+        Does anyone on this bill have a photo? If so every row reserves the
+        space for one, so the talk titles still line up down the column. If
+        nobody does, no row reserves anything and the list reads as it did
+        before there were photos at all.
+      {%- endcomment -%}
+      {%- assign any_shot = false -%}
+      {%- for talk in page.event.talks -%}
+        {%- capture probe -%}
+          {% include agenda/headshot.html speaker=talk.speaker headshot=talk.headshot fallback="none" %}
+        {%- endcapture -%}
+        {%- assign probe = probe | strip -%}
+        {%- if probe != "" -%}{%- assign any_shot = true -%}{%- break -%}{%- endif -%}
+      {%- endfor -%}
+
       <ol class="steps">
         {% for talk in page.event.talks %}
           <li class="step">
@@ -33,6 +48,23 @@
             <span class="step__num accent">
               {%- if start %}<time>{{ start }}</time>{% else %}{{ talk.slot }}{% endif -%}
             </span>
+            {%- comment -%}
+              Decoration, so no initials placeholder here: a row without a
+              photo just closes up. The link is hidden from assistive tech
+              because the title and the speaker's name below already point at
+              the same page — this is a bigger target for a mouse, not a
+              third announcement of the same link.
+            {%- endcomment -%}
+            {%- capture shot -%}
+              {% include agenda/headshot.html speaker=talk.speaker headshot=talk.headshot class="headshot--sm" size=56 fallback="none" %}
+            {%- endcapture -%}
+            {%- assign shot = shot | strip -%}
+            {% if shot != "" %}
+              <a class="step__shot" tabindex="-1" aria-hidden="true"
+                 href="{{ '/agenda/' | relative_url }}{{ page.event.slug }}/{{ talk.slug }}/">{{ shot }}</a>
+            {% elsif any_shot %}
+              <span class="step__shot step__shot--empty" aria-hidden="true"></span>
+            {% endif %}
             <div class="step__body">
               <h3 class="step__title">
                 <a href="{{ '/agenda/' | relative_url }}{{ page.event.slug }}/{{ talk.slug }}/">{{ talk.topic }}</a>

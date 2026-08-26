@@ -616,12 +616,32 @@ a { color: var(--accent); }
   color: var(--accent);
 }
 
+/* Thumbnail in an event's running order. Decoration beside the talk title,
+   so rows with no photo simply have none — see agenda/event.html. */
+.step__shot {
+  flex: 0 0 auto;
+  display: block;
+  line-height: 0;
+}
+.headshot--sm,
+.step__shot--empty {
+  width: 56px;
+  height: 56px;
+}
+.step__shot:hover .headshot--sm { border-color: var(--accent); }
+
 @media (max-width: 640px) {
   /* Stack rather than squeeze: a 132px circle beside a bio leaves the text
      in a column too narrow to read on a phone. */
   .speaker { flex-direction: column; gap: 20px; }
-  .headshot { width: 104px; height: 104px; }
-  .headshot--initials { font-size: 1.9rem; }
+  .speaker .headshot { width: 104px; height: 104px; }
+  .speaker .headshot--initials { font-size: 1.9rem; }
+  /* The agenda row keeps its thumbnail, just smaller. The reserved slot on a
+     row without one goes away entirely: on a phone the column it lines the
+     titles up with costs more than the alignment is worth. */
+  .step { gap: 14px; }
+  .headshot--sm { width: 44px; height: 44px; }
+  .step__shot--empty { display: none; }
 }
 
 /* Event image: banner on an event's agenda page, thumbnail on its card ------
