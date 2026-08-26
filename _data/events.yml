@@ -4,6 +4,8 @@
 # This file is the source of truth for event wording. Each entry needs:
 #
 #   slug       stable id, never change it once talks are scheduled
+#   image      header image at the top of an event agenda
+#   Image_alt  alt text for the image above
 #   starts_on  machine-readable date (YYYY-MM-DD); `date` stays the display form
 #   title      shown on the home page and at the top of the agenda
 #   location   optional, shown under the agenda heading
@@ -15,6 +17,8 @@
 #              slug in assets/img/events/; with neither, the card keeps the ◇.
 #   image_alt  optional; alt text for that image. Defaults to the title.
 - slug: sept15-dc
+  image: /assets/img/events/sept15-dc.jpg
+  image_alt: Cherry blossoms in full bloom on the Potomac - image courtesy of Yeon Choi (@yeonji12) at Unsplash
   date: "Sept 15, 2026"
   starts_on: 2026-09-15
   title: Agentic 101 - Washington, DC (State of the Stack)
