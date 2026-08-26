@@ -13,14 +13,14 @@
   starts_on: 2026-09-15
   title: Agentic 101 - Washington, DC (State of the Stack)
   location: Washington, DC
-  body: "Our inaugural Agentic 101 event! <a href=\"#sept15-dc\">(expand)</a>"
+  body: "Our inaugural Agentic 101 event! <a href=\"agenda/sept15-dc/\">(agenda)</a>"
 
 - slug: oct01-bos
   date: "Oct 1, 2026"
   starts_on: 2026-10-01
   title: Agentic 101 - Boston, MA (Glasswing Ventures)
   location: Glasswing Ventures, Boston, MA
-  body: "Our next Agentic 101 will be in Boston at Glasswing Ventures. <a href=\"#oct01-bos\">(expand)</a>"
+  body: "Our next Agentic 101 will be in Boston at Glasswing Ventures. <a href=\"agenda/oct01-bos\">(agenda)</a>"
 
 - slug: oct17-nyc
   date: "October 17, 2026"
