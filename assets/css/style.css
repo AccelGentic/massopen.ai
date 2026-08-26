@@ -623,3 +623,29 @@ a { color: var(--accent); }
   .headshot { width: 104px; height: 104px; }
   .headshot--initials { font-size: 1.9rem; }
 }
+
+/* Event image: banner on an event's agenda page, thumbnail on its card ------
+   Both crop to a fixed shape with object-fit rather than letting the source
+   set the height, so a portrait photo and a wide banner still line up with
+   everything around them. */
+.event-banner__wrap { margin: 0 0 30px; }
+.event-banner {
+  display: block;
+  width: 100%;
+  height: clamp(170px, 26vw, 320px);
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 0 40px rgba(47, 109, 240, 0.12);
+}
+.card__media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  /* Matches the space the ◇ icon leaves on a card with no image. */
+  margin: 0 0 14px;
+  background: rgba(90, 169, 255, 0.08);
+}
