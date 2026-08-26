@@ -401,6 +401,28 @@ a { color: var(--accent); }
 .essay-link__title { flex: 1; color: var(--ink); font-size: 1.1rem; font-weight: 600; }
 .essay-link__arrow { font-size: 1.4rem; flex: 0 0 auto; }
 
+/* "More" link: a quiet way out of a section whose list continues somewhere
+   else. Deliberately lighter than .btn and than the .essay-link panel — under
+   the news list it sits directly above the newsletter signup form, which is
+   the thing that should actually be clicked, so it defers to it rather than
+   stacking a second call to action on top of it. The arrow nudging right on
+   hover is the same gesture as .essay-link__arrow. */
+.more-link__wrap { margin: 26px 0 0; text-align: center; }
+.more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 2px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease, gap 0.15s ease;
+}
+.more-link:hover { border-bottom-color: var(--accent); gap: 14px; }
+.more-link__arrow { font-size: 1.2rem; line-height: 1; }
+
 /* Shared form status line (used by the CFP form) --------------------------- */
 .section--join { text-align: center; }
 .section--join .section__eyebrow,
