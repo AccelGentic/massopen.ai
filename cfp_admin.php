@@ -2,7 +2,7 @@
 /**
  * Mass Open — CFP review console.
  *
- * Browse, search, edit and export talk proposals. Scoped to cfp_submissions
+ * Browse, search, edit and export talk proposals. Scoped to the CFP tables
  * only: it is deliberately not a general database tool, so a breach here
  * cannot reach the rest of the schema.
  *
@@ -25,9 +25,15 @@ require __DIR__ . '/subscribe_lib.php';
 
 const PER_PAGE = 50;
 
-/** Fields an organiser may change. Everything else is read-only. */
+/**
+ * Fields an organiser may change. Everything else is read-only.
+ *
+ * Scheduling is not here: a talk can be booked for several events at once, so
+ * it lives in its own table and is handled by read_schedule()/save_schedule()
+ * rather than by the generic field loop.
+ */
 const EDITABLE = ['name', 'email', 'topic', 'bio', 'abstract', 'headshot',
-                  'review_status', 'reviewer_notes', 'event_id', 'slot_order'];
+                  'review_status', 'reviewer_notes'];
 
 const REVIEW_STATES = ['new', 'shortlist', 'accepted', 'rejected'];
 
@@ -45,6 +51,111 @@ function valid_headshot(string $v): bool
 
     return str_starts_with($v, 'https://')
         && filter_var($v, FILTER_VALIDATE_URL) !== false;
+}
+
+/* ---------------------------------------------------------------------------
+ * Scheduling
+ *
+ * A proposal is accepted for a SET of events — the same talk often goes to DC
+ * and then to Boston — each with its own place in that event's running order.
+ * These three functions are the whole of it: read what is booked, read what
+ * the reviewer ticked, and move one to the other.
+ * ------------------------------------------------------------------------ */
+
+/** What this proposal is currently booked for: event id => slot order. */
+function read_schedule(PDO $pdo, int $id): array
+{
+    $stmt = $pdo->prepare(
+        'SELECT event_id, slot_order FROM cfp_schedule WHERE submission_id = :id'
+    );
+    $stmt->execute([':id' => $id]);
+
+    $booked = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $booked[(int) $row['event_id']] = (int) $row['slot_order'];
+    }
+    ksort($booked);
+
+    return $booked;
+}
+
+/**
+ * What the reviewer ticked: event id => slot order.
+ *
+ * The form posts a checkbox per event (`events[<id>]`) and the slot beside it
+ * (`slot[<id>]`). An unticked event is simply absent from the post, which is
+ * how a booking is removed — so an empty result means "not scheduled
+ * anywhere", not "leave it alone". Only ever called when the hidden
+ * `schedule_form` marker says the schedule was part of the form.
+ */
+function posted_schedule(array $post, array $validEventIds): array
+{
+    $picked = $post['events'] ?? [];
+    $slots  = $post['slot'] ?? [];
+    if (!is_array($picked)) {
+        $picked = [];
+    }
+
+    $wanted = [];
+    foreach (array_keys($picked) as $key) {
+        $eventId = (int) $key;
+        if (!in_array($eventId, $validEventIds, true)) {
+            http_response_code(422);
+            exit('No such event.');
+        }
+        $wanted[$eventId] = max(0, (int) (is_array($slots) ? ($slots[$key] ?? 0) : 0));
+    }
+    ksort($wanted);
+
+    return $wanted;
+}
+
+/** Apply a schedule, touching only the bookings that actually changed. */
+function save_schedule(PDO $pdo, int $id, array $current, array $wanted): void
+{
+    foreach ($current as $eventId => $slot) {
+        if (!array_key_exists($eventId, $wanted)) {
+            $stmt = $pdo->prepare(
+                'DELETE FROM cfp_schedule WHERE submission_id = :id AND event_id = :ev'
+            );
+            $stmt->execute([':id' => $id, ':ev' => $eventId]);
+        }
+    }
+
+    foreach ($wanted as $eventId => $slot) {
+        if (!array_key_exists($eventId, $current)) {
+            $stmt = $pdo->prepare(
+                'INSERT INTO cfp_schedule (submission_id, event_id, slot_order)
+                      VALUES (:id, :ev, :slot)'
+            );
+            $stmt->execute([':id' => $id, ':ev' => $eventId, ':slot' => $slot]);
+        } elseif ($current[$eventId] !== $slot) {
+            $stmt = $pdo->prepare(
+                'UPDATE cfp_schedule SET slot_order = :slot
+                  WHERE submission_id = :id AND event_id = :ev'
+            );
+            $stmt->execute([':id' => $id, ':ev' => $eventId, ':slot' => $slot]);
+        }
+    }
+}
+
+/**
+ * A schedule as one line for the edit history — 'sept15-dc:1, oct01-bos:3'.
+ * Slugs rather than ids, so the log still reads years later.
+ */
+function describe_schedule(array $schedule, array $slugById): string
+{
+    if (!$schedule) {
+        return '(not scheduled)';
+    }
+
+    $parts = [];
+    foreach ($schedule as $eventId => $slot) {
+        $parts[] = ($slugById[$eventId] ?? ('#' . $eventId)) . ':' . $slot;
+    }
+    sort($parts);
+
+    return implode(', ', $parts);
 }
 
 /* ---------------------------------------------------------------------------
@@ -228,6 +339,14 @@ function page_open(string $title, string $subtitle = ''): void
          '.f input,.f select,.f textarea{width:100%;padding:11px 13px;font:inherit;color:var(--ink);background:rgba(5,8,22,.8);border:1px solid var(--border-strong);border-radius:8px}',
          '.f textarea{min-height:120px;resize:vertical;line-height:1.6}',
          '.f .count{font-size:.78rem;color:var(--ink-faint);margin-top:5px}',
+         // The schedule picker: one row per event, checkbox and slot side by
+         // side. Overrides the full-width .f input rules above.
+         'table.sched{width:100%;border-collapse:collapse}',
+         'table.sched td{padding:8px 0;border-bottom:1px solid var(--border);vertical-align:middle}',
+         'table.sched td.sched__slot{width:1%;text-align:right}',
+         'table.sched label{display:flex;align-items:center;gap:10px;margin:0;font-weight:400;color:var(--ink)}',
+         'table.sched input[type=checkbox]{width:auto;flex:none;accent-color:var(--accent)}',
+         'table.sched input[type=number]{width:5.5rem;padding:7px 9px}',
          '.hist{font-size:.82rem;color:var(--ink-dim)}',
          '.hist td{padding:8px 10px;border-bottom:1px solid var(--border)}',
          '.hist del{color:#ff8a8a;text-decoration:none;background:rgba(255,138,138,.09)}',
@@ -285,21 +404,6 @@ try {
             if ($field === 'review_status' && !in_array($new, REVIEW_STATES, true)) {
                 continue;
             }
-            if ($field === 'event_id') {
-                // Empty means "not scheduled"; anything else must be a real event.
-                $new = ($new === '' || $new === '0') ? '' : (string) (int) $new;
-                if ($new !== '') {
-                    $check = $pdo->prepare('SELECT COUNT(*) FROM events WHERE id = :id');
-                    $check->execute([':id' => (int) $new]);
-                    if (!(int) $check->fetchColumn()) {
-                        http_response_code(422);
-                        exit('No such event.');
-                    }
-                }
-            }
-            if ($field === 'slot_order') {
-                $new = (string) max(0, (int) $new);
-            }
             if ($field === 'email' && $new !== '' && !filter_var($new, FILTER_VALIDATE_EMAIL)) {
                 http_response_code(422);
                 exit('That email address is not valid.');
@@ -317,29 +421,52 @@ try {
             }
         }
 
-        if ($changes) {
+        // Scheduling. The hidden marker distinguishes "the reviewer cleared
+        // every event" from "this post did not carry the schedule at all" —
+        // unticked checkboxes send nothing, so without it a stray post would
+        // silently unschedule the talk everywhere.
+        $currentSchedule  = [];
+        $wantedSchedule   = [];
+        $scheduleChanged  = false;
+        $slugById         = [];
+
+        if (array_key_exists('schedule_form', $_POST)) {
+            foreach ($pdo->query('SELECT id, slug FROM events')->fetchAll() as $ev) {
+                $slugById[(int) $ev['id']] = $ev['slug'];
+            }
+            $currentSchedule = read_schedule($pdo, $id);
+            $wantedSchedule  = posted_schedule($_POST, array_keys($slugById));
+            $scheduleChanged = $wantedSchedule !== $currentSchedule;
+        }
+
+        if ($changes || $scheduleChanged) {
             $pdo->beginTransaction();
 
-            $sets = [];
-            $args = [':id' => $id];
-            foreach ($changes as $field => $value) {
-                $sets[]          = "`$field` = :$field";
-                // An unscheduled talk is NULL, not '', or the FK rejects it.
-                $args[":$field"] = ($field === 'event_id' && $value === '') ? null : $value;
-            }
-            // Editing the address changes the de-duplication key too.
-            if (isset($changes['email'])) {
-                $sets[]                    = '`email_canonical` = :email_canonical';
-                $args[':email_canonical']  = mo_canonical($changes['email']);
-            }
-            if (isset($changes['review_status'])) {
-                $sets[] = '`reviewed_at` = NOW()';
+            if ($changes) {
+                $sets = [];
+                $args = [':id' => $id];
+                foreach ($changes as $field => $value) {
+                    $sets[]          = "`$field` = :$field";
+                    $args[":$field"] = $value;
+                }
+                // Editing the address changes the de-duplication key too.
+                if (isset($changes['email'])) {
+                    $sets[]                    = '`email_canonical` = :email_canonical';
+                    $args[':email_canonical']  = mo_canonical($changes['email']);
+                }
+                if (isset($changes['review_status'])) {
+                    $sets[] = '`reviewed_at` = NOW()';
+                }
+
+                $stmt = $pdo->prepare(
+                    'UPDATE cfp_submissions SET ' . implode(', ', $sets) . ' WHERE id = :id'
+                );
+                $stmt->execute($args);
             }
 
-            $stmt = $pdo->prepare(
-                'UPDATE cfp_submissions SET ' . implode(', ', $sets) . ' WHERE id = :id'
-            );
-            $stmt->execute($args);
+            if ($scheduleChanged) {
+                save_schedule($pdo, $id, $currentSchedule, $wantedSchedule);
+            }
 
             $log = $pdo->prepare(
                 'INSERT INTO cfp_revisions (submission_id, field, old_value, new_value, edited_by)
@@ -355,11 +482,23 @@ try {
                 ]);
             }
 
+            // One history row for the whole schedule, as a readable line
+            // rather than a booking per event — 'sept15-dc:1, oct01-bos:3'.
+            if ($scheduleChanged) {
+                $log->execute([
+                    ':id'    => $id,
+                    ':field' => 'schedule',
+                    ':old'   => describe_schedule($currentSchedule, $slugById),
+                    ':new'   => describe_schedule($wantedSchedule, $slugById),
+                    ':by'    => $OPERATOR,
+                ]);
+            }
+
             $pdo->commit();
         }
 
         // Post/Redirect/Get so a refresh cannot replay the edit.
-        $saved = $changes ? count($changes) : 0;
+        $saved = count($changes) + ($scheduleChanged ? 1 : 0);
         header('Location: ?id=' . $id . '&saved=' . $saved, true, 303);
         exit;
     }
@@ -367,12 +506,18 @@ try {
     /* --- CSV export ---------------------------------------------------- */
     if (isset($_GET['export'])) {
         [$where, $args] = build_filter($_GET, 's.');
+        // One 'scheduled' column, 'slug:slot' per booking, rather than a row
+        // per event — a CSV of proposals should stay one line per proposal.
         $stmt = $pdo->prepare(
             "SELECT s.id, s.created_at, s.name, s.email, s.topic, s.bio, s.abstract,
                     s.status, s.review_status, s.reviewer_notes, s.verified_at,
-                    s.spam_score, s.fill_seconds, e.slug AS event_slug, s.slot_order
+                    s.spam_score, s.fill_seconds,
+                    (SELECT GROUP_CONCAT(CONCAT(e.slug, ':', cs.slot_order)
+                                         ORDER BY e.starts_on, e.slug SEPARATOR ' ')
+                       FROM cfp_schedule cs
+                       JOIN events e ON e.id = cs.event_id
+                      WHERE cs.submission_id = s.id) AS scheduled
                FROM cfp_submissions s
-               LEFT JOIN events e ON e.id = s.event_id
                $where ORDER BY s.id DESC"
         );
         $stmt->execute($args);
@@ -448,20 +593,37 @@ try {
         }
         echo '</select></div>';
 
+        // Scheduling: tick every event this talk is booked for. A talk given
+        // twice gets two rows, each with its own running order.
         $events = $pdo->query('SELECT id, slug, title, starts_on FROM events ORDER BY starts_on, slug')
                       ->fetchAll();
-        echo '<div class="f"><label for="event_id">Scheduled at</label><select id="event_id" name="event_id">',
-             '<option value="">— not scheduled —</option>';
-        foreach ($events as $ev) {
-            $sel = ((string) $p['event_id'] === (string) $ev['id']) ? ' selected' : '';
-            echo '<option value="', (int) $ev['id'], '"', $sel, '>',
-                 h($ev['starts_on'] ?? '????'), ' · ', h($ev['title']), '</option>';
-        }
-        echo '</select><p class="count">Only accepted, verified talks appear on the public agenda.</p></div>';
+        $booked = read_schedule($pdo, $id);
 
-        echo '<div class="f"><label for="slot_order">Running order</label>',
-             '<input id="slot_order" name="slot_order" type="number" min="0" step="1" value="',
-             (int) $p['slot_order'], '"><p class="count">Low numbers first. Ties fall back to submission order.</p></div>';
+        echo '<div class="f"><label>Scheduled at</label>',
+             '<input type="hidden" name="schedule_form" value="1">';
+        if (!$events) {
+            echo '<p class="count">No events yet. Add one to <code>_data/events.yml</code>, ',
+                 'then run <code>php tools/agenda.php sync</code>.</p>';
+        } else {
+            echo '<table class="sched">';
+            foreach ($events as $ev) {
+                $evId = (int) $ev['id'];
+                $on   = array_key_exists($evId, $booked);
+                echo '<tr><td class="sched__pick"><label for="ev', $evId, '">',
+                     '<input type="checkbox" id="ev', $evId, '" name="events[', $evId, ']" value="1"',
+                     $on ? ' checked' : '', '>',
+                     '<span>', h($ev['starts_on'] ?? '????'), ' · ', h($ev['title']), '</span>',
+                     '</label></td>',
+                     '<td class="sched__slot"><input type="number" min="0" step="1" ',
+                     'name="slot[', $evId, ']" value="', (int) ($booked[$evId] ?? 0), '" ',
+                     'aria-label="Running order at ', h($ev['title']), '"></td></tr>';
+            }
+            echo '</table>';
+        }
+        echo '<p class="count">Tick every event this talk is booked for — the same talk can run ',
+             'at more than one. The number beside each is its running order there: low numbers ',
+             'first, ties fall back to submission order. Only accepted, verified talks appear ',
+             'on the public agenda.</p></div>';
 
         echo '<div class="f"><label for="reviewer_notes">Reviewer notes <span style="font-weight:400;color:var(--ink-faint)">(private)</span></label>',
              '<textarea id="reviewer_notes" name="reviewer_notes" rows="3">', h($p['reviewer_notes']), '</textarea></div>';
@@ -511,11 +673,16 @@ try {
     $page   = max(1, (int) ($_GET['page'] ?? 1));
     $offset = ($page - 1) * PER_PAGE;
 
+    // A subquery rather than a join: a talk can be booked for several events,
+    // and the list stays one row per proposal.
     $stmt = $pdo->prepare(
         "SELECT s.id, s.created_at, s.name, s.email, s.topic, s.status, s.review_status,
-                s.spam_score, s.fill_seconds, e.slug AS event_slug
+                s.spam_score, s.fill_seconds,
+                (SELECT GROUP_CONCAT(e.slug ORDER BY e.starts_on, e.slug SEPARATOR ', ')
+                   FROM cfp_schedule cs
+                   JOIN events e ON e.id = cs.event_id
+                  WHERE cs.submission_id = s.id) AS event_slugs
            FROM cfp_submissions s
-           LEFT JOIN events e ON e.id = s.event_id
            $where
           ORDER BY s.id DESC LIMIT " . PER_PAGE . " OFFSET " . (int) $offset
     );
@@ -554,7 +721,7 @@ try {
     } else {
         echo '<table class="grid"><thead><tr>',
              '<th>#</th><th>Submitted</th><th>Speaker</th><th>Topic</th>',
-             '<th>Verification</th><th>Review</th><th>Fill</th><th>Links</th>',
+             '<th>Verification</th><th>Review</th><th>Scheduled</th><th>Fill</th><th>Links</th>',
              '</tr></thead><tbody>';
         foreach ($rows as $r) {
             echo '<tr>',
@@ -565,6 +732,8 @@ try {
                  '<td>', h(mb_strimwidth((string) $r['topic'], 0, 70, '…')), '</td>',
                  '<td>', pill($r['status']), '</td>',
                  '<td>', pill($r['review_status']), '</td>',
+                 '<td style="color:var(--ink-faint);font-size:.82rem">',
+                    h((string) ($r['event_slugs'] ?? '')) ?: '—', '</td>',
                  '<td style="color:var(--ink-faint)">', h((string) ($r['fill_seconds'] ?? '—')), 's</td>',
                  '<td style="color:', ((int) $r['spam_score'] > 2 ? '#ffc46b' : 'var(--ink-faint)'), '">', (int) $r['spam_score'], '</td>',
                  '</tr>';

@@ -175,16 +175,27 @@ abstract, headshot. Emails, IP addresses, reviewer notes, spam telemetry and
 every rejected or unverified proposal stay in the database, so no template bug
 can leak them.
 
-Assign a talk to an event in the review console: pick **Scheduled at** and set
-a **Running order** (low numbers first).
+### Scheduling a talk — one event or several
+
+Under **Scheduled at** in the review console, tick every event a talk is
+booked for and give it a running order at each. A talk approved for one event
+gets one tick; a talk worth giving twice — the same speaker takes it to DC and
+then to Boston — gets two, and can sit in a different slot at each. Untick an
+event to drop it from that bill; untick them all and the talk is accepted but
+unscheduled.
+
+A talk on two bills is published under both, so it has a page per event
+(`/agenda/sept15-dc/<talk>/` and `/agenda/oct01-bos/<talk>/`) — each one
+self-canonical, each showing that event's date and location. That is the point
+of per-event pages, but it does mean two URLs for the same abstract.
 
 The running order is shown as a start time, mapped in `_data/slot_times.yml`:
 slot 0 is 9:30am, 1 is 10am, 2 is 10:45am, 3 is 11:30am, 4 is 1pm, 5 is
 1:45pm, 6 is 2:30pm, 7 is 3:30pm, 8 is 4:15pm, 9 is 5pm. Change a time, or add
 another slot, by editing that file — no re-export needed, just a rebuild. A slot with no entry
 falls back to showing its number. `status` reports any accepted talk
-that still has no event. An event with nothing scheduled still appears, saying
-the programme is not announced yet.
+that is not on a bill yet, and any talk on more than one. An event with nothing
+scheduled still appears, saying the programme is not announced yet.
 
 `_data/agenda.yml` is generated — do not hand-edit it; the next export wins.
 
@@ -408,11 +419,13 @@ Setting both is fine and is the belt-and-braces option.
 
 #### What you can edit
 
-Name, email, topic, bio, abstract, headshot, review status and private
-reviewer notes.
+Name, email, topic, bio, abstract, headshot, review status, private reviewer
+notes, and which events the talk is scheduled for.
 Every change is written to `cfp_revisions` with the field, the old and new
 values, and who made it — these are words someone else wrote, so the original
-is always recoverable.
+is always recoverable. A schedule change is logged as one `schedule` entry
+reading like `sept15-dc:1, oct01-bos:3`, so you can see at a glance what a
+talk was booked for before.
 
 `status` (did the submitter verify their address) is **read-only** here and
 deliberately separate from `review_status` (new / shortlist / accepted /
@@ -429,6 +442,15 @@ a shortlist with a committee that doesn't need a login.
 The review columns, the revision table and `headshot` are new. `schema.sql`
 carries the `ALTER TABLE … ADD COLUMN IF NOT EXISTS` statements near the CFP
 section; they are safe to re-run.
+
+Scheduling moved out of `cfp_submissions` and into its own `cfp_schedule`
+table, one row per event a talk is booked for, so a talk can be on more than
+one bill. On an existing install: create the table (it is a plain
+`CREATE TABLE IF NOT EXISTS` in `schema.sql`), then run the commented-out
+`INSERT IGNORE … SELECT` just below it, which carries every existing booking
+across. Check the result with `php tools/agenda.php status`; once it matches,
+the old `event_id` and `slot_order` columns can be dropped — the statement for
+that is commented out beside the backfill. Nothing reads them any more.
 
 ### CFP settings
 

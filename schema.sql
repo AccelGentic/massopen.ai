@@ -135,12 +135,11 @@ CREATE TABLE IF NOT EXISTS cfp_submissions (
   verify_sent_at     DATETIME     DEFAULT NULL,
   verified_at        DATETIME     DEFAULT NULL,
 
+  -- Scheduling is NOT here: a talk can be given at more than one event, so it
+  -- lives in cfp_schedule (one row per event a talk is booked for), below.
+
   -- Anti-spam telemetry, kept so you can tune the thresholds against real
   -- traffic rather than guesses.
-  -- Scheduling: set in the review console once a talk is accepted.
-  event_id           BIGINT UNSIGNED DEFAULT NULL,
-  slot_order         INT          NOT NULL DEFAULT 0,
-
   spam_score         TINYINT UNSIGNED NOT NULL DEFAULT 0,
   fill_seconds       INT UNSIGNED DEFAULT NULL,
 
@@ -155,8 +154,7 @@ CREATE TABLE IF NOT EXISTS cfp_submissions (
   KEY idx_cfp_verify_token (verify_token_hash),
   KEY idx_cfp_email (email_canonical),
   KEY idx_cfp_status (status),
-  KEY idx_cfp_review_status (review_status),
-  KEY idx_cfp_event (event_id, slot_order)
+  KEY idx_cfp_review_status (review_status)
 ) ENGINE=InnoDB
   ROW_FORMAT=DYNAMIC
   DEFAULT CHARSET=utf8mb4
@@ -225,16 +223,55 @@ CREATE TABLE IF NOT EXISTS events (
 ) ENGINE=InnoDB ROW_FORMAT=DYNAMIC
   DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Scheduling lives on the submission: which event it is on, and where in the
--- running order. ON DELETE SET NULL so removing an event unschedules its talks
--- rather than deleting proposals.
+-- Scheduling: one row per event a talk is booked for.
 --
+-- A talk is often worth giving more than once — the same speaker takes it to
+-- DC and then to Boston — so a proposal is accepted for a SET of events, each
+-- with its own place in that event's running order. That is why this is a
+-- table rather than a column on cfp_submissions.
+--
+-- ON DELETE CASCADE on both sides: removing an event unschedules its talks
+-- (the proposals themselves are untouched), and deleting a proposal takes its
+-- bookings with it. Nothing here is worth keeping once either end is gone —
+-- the record of who edited what lives in cfp_revisions.
+CREATE TABLE IF NOT EXISTS cfp_schedule (
+  submission_id BIGINT UNSIGNED NOT NULL,
+  event_id      BIGINT UNSIGNED NOT NULL,
+
+  -- Where in this event's running order. Low numbers first; the number is a
+  -- slot, not a position, and maps to a start time in _data/slot_times.yml.
+  -- The same talk can sit in a different slot at each event.
+  slot_order    INT       NOT NULL DEFAULT 0,
+
+  created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  -- One booking per talk per event: scheduling a talk twice at the same event
+  -- is a mistake, not a use case.
+  PRIMARY KEY (submission_id, event_id),
+  KEY idx_sched_event (event_id, slot_order),
+  CONSTRAINT fk_sched_submission FOREIGN KEY (submission_id)
+    REFERENCES cfp_submissions (id) ON DELETE CASCADE,
+  CONSTRAINT fk_sched_event FOREIGN KEY (event_id)
+    REFERENCES events (id) ON DELETE CASCADE
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Upgrading an install that scheduled talks with cfp_submissions.event_id:
+-- create the table above, then carry the existing bookings across. INSERT
+-- IGNORE, so this is safe to re-run.
+--
+--#   INSERT IGNORE INTO cfp_schedule (submission_id, event_id, slot_order)
+--#   SELECT id, event_id, slot_order FROM cfp_submissions
+--#    WHERE event_id IS NOT NULL;
+--
+-- Once you have checked `php tools/agenda.php status` against the old
+-- schedule, the columns those bookings came from can go. Nothing reads them
+-- any more. Drop the foreign key first if the install ever added it:
+--
+--#   ALTER TABLE cfp_submissions DROP FOREIGN KEY fk_cfp_event;
 --#   ALTER TABLE cfp_submissions
---#     ADD COLUMN IF NOT EXISTS event_id BIGINT UNSIGNED DEFAULT NULL,
---#     ADD COLUMN IF NOT EXISTS slot_order INT NOT NULL DEFAULT 0,
---#     ADD KEY IF NOT EXISTS idx_cfp_event (event_id, slot_order),
---#     ADD CONSTRAINT fk_cfp_event FOREIGN KEY (event_id)
---#       REFERENCES events (id) ON DELETE SET NULL;
+--#     DROP COLUMN IF EXISTS event_id,
+--#     DROP COLUMN IF EXISTS slot_order;
 
 
 -- Single-use form nonces, issued by cfp_token.php when the form is rendered.

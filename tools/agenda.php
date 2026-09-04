@@ -18,6 +18,9 @@
  * reviewer notes and rejected proposals never leave the database, so no bug in
  * a template can leak them.
  *
+ * A talk booked for more than one event (cfp_schedule has a row per booking)
+ * is exported under each of them, with that event's own running order.
+ *
  * Reads the same MASSOPEN_DB_* environment variables as the site.
  */
 
@@ -89,7 +92,8 @@ case 'sync':
     }
 
     // Events removed from the file are left in place on purpose: deleting one
-    // would unschedule its talks. Report them instead.
+    // would cascade through cfp_schedule and unschedule its talks. Report
+    // them instead.
     $slugs = array_column($events, 'slug');
     $stale = $pdo->query('SELECT slug FROM events')->fetchAll(PDO::FETCH_COLUMN);
     foreach (array_diff($stale, $slugs) as $gone) {
@@ -101,18 +105,22 @@ case 'sync':
 
 /* ------------------------------------------------------------------------ */
 case 'export':
-    // LEFT JOIN, so an event with nothing scheduled yet is still listed and
-    // renders its "not announced" state rather than vanishing from the index.
+    // LEFT JOINs all the way down, so an event with nothing scheduled yet is
+    // still listed and renders its "not announced" state rather than vanishing
+    // from the index. A talk booked for two events comes back on both, each
+    // time with that booking's own slot.
     $rows = $pdo->query(
         "SELECT e.slug AS event_slug, e.title AS event_title,
                 e.starts_on, e.location,
-                s.id, s.name, s.bio, s.topic, s.abstract, s.headshot, s.slot_order
+                s.id, s.name, s.bio, s.topic, s.abstract, s.headshot, cs.slot_order
            FROM events e
+           LEFT JOIN cfp_schedule cs
+             ON cs.event_id = e.id
            LEFT JOIN cfp_submissions s
-             ON s.event_id = e.id
+             ON s.id = cs.submission_id
             AND s.review_status = 'accepted'
             AND s.status = 'verified'
-          ORDER BY e.starts_on, e.slug, s.slot_order, s.id"
+          ORDER BY e.starts_on, e.slug, cs.slot_order, s.id"
     )->fetchAll();
 
     $byEvent = [];
@@ -175,19 +183,35 @@ case 'status':
     $rows = $pdo->query(
         "SELECT e.slug, e.starts_on, COUNT(s.id) AS talks
            FROM events e
+           LEFT JOIN cfp_schedule cs ON cs.event_id = e.id
            LEFT JOIN cfp_submissions s
-             ON s.event_id = e.id AND s.review_status = 'accepted' AND s.status = 'verified'
-          GROUP BY e.id ORDER BY e.starts_on"
+             ON s.id = cs.submission_id
+            AND s.review_status = 'accepted' AND s.status = 'verified'
+          GROUP BY e.id, e.slug, e.starts_on ORDER BY e.starts_on"
     )->fetchAll();
     foreach ($rows as $r) {
         printf("  %-14s %-12s %d accepted talk(s)\n", $r['slug'], $r['starts_on'] ?? '—', $r['talks']);
     }
     $un = (int) $pdo->query(
-        "SELECT COUNT(*) FROM cfp_submissions
-          WHERE review_status='accepted' AND status='verified' AND event_id IS NULL"
+        "SELECT COUNT(*) FROM cfp_submissions s
+          WHERE s.review_status='accepted' AND s.status='verified'
+            AND NOT EXISTS (SELECT 1 FROM cfp_schedule cs WHERE cs.submission_id = s.id)"
     )->fetchColumn();
     if ($un > 0) {
         echo "  ! $un accepted talk(s) are not assigned to an event yet.\n";
+    }
+
+    // A talk on more than one bill is deliberate, but worth seeing at a glance.
+    $repeat = $pdo->query(
+        "SELECT s.topic, s.name, COUNT(*) AS bookings
+           FROM cfp_submissions s
+           JOIN cfp_schedule cs ON cs.submission_id = s.id
+          WHERE s.review_status='accepted' AND s.status='verified'
+          GROUP BY s.id, s.topic, s.name HAVING COUNT(*) > 1
+          ORDER BY bookings DESC, s.id"
+    )->fetchAll();
+    foreach ($repeat as $r) {
+        printf("  · %s (%s) is on %d bills\n", $r['topic'], $r['name'], (int) $r['bookings']);
     }
     break;
 
