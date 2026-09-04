@@ -762,3 +762,72 @@ a { color: var(--accent); }
   margin: 0 0 14px;
   background: rgba(90, 169, 255, 0.08);
 }
+
+/* Sponsor callout at the top of an event's agenda page ----------------------
+   Authored per event in _data/events.yml — see agenda/sponsor.html. Sits
+   under the registration panel, wider than it because a blurb needs the room,
+   and stacks one card per sponsor for an event with more than one. */
+.sponsors {
+  max-width: 720px;
+  margin: 34px auto 0;
+  text-align: left;
+}
+.sponsors__label {
+  margin: 0 0 12px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+.sponsor {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 24px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.sponsor + .sponsor { margin-top: 14px; }
+/* A fixed box, so logos of different shapes still line their blurbs up, and
+   an empty one for a sponsor with no logo on a bill where someone else has
+   one. The box has to be a definite size all the way down to the image: an
+   SVG logo with a viewBox but no width/height — which is most of them — has
+   no intrinsic size to fall back on and collapses to nothing otherwise. */
+.sponsor__mark { flex: none; width: 132px; }
+.sponsor__mark > a { display: block; }
+.sponsor__logo {
+  display: block;
+  width: 100%;
+  height: 64px;
+  object-fit: contain;
+  object-position: center;
+}
+.sponsor__body { min-width: 0; }
+.sponsor__name {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+}
+.sponsor__name a { color: #fff; text-decoration: none; }
+.sponsor__name a:hover { color: var(--accent); }
+.sponsor__blurb {
+  margin: 8px 0 0;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 640px) {
+  /* Side by side leaves the blurb a column too narrow to read. */
+  .sponsor {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  .sponsor__mark { align-self: center; }
+  /* Stacked, there is no column to line up, so a reserved box is dead space. */
+  .sponsor__mark--empty { display: none; }
+}

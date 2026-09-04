@@ -1,0 +1,108 @@
+{%- comment -%}
+  The sponsor callout at the top of an event's agenda page — who paid for the
+  room, and why they wanted to.
+
+    include.slug   the event's slug (required)
+
+  Authored per event in _data/events.yml, where the rest of the event's
+  wording already lives. Never in _data/agenda.yml: every `agenda.php export`
+  rewrites that file, and a sponsor is wording, not schedule.
+
+  A list, so an event can carry one sponsor or several. Each entry:
+
+    name:   the company, as it should be written. Required — an entry
+            without one is skipped, since there would be nothing to show.
+    url:    optional; their site. With one, the logo and the name link to
+            it. Without one, both render as plain text.
+    logo:   optional; a site path or an https:// URL. Left out, the callout
+            looks for a file named after them in assets/img/sponsors/ — see
+            agenda/sponsor-logo.html — and with neither, shows the name on
+            its own.
+    blurb:  optional; a sentence or two on why they are sponsoring. Keep it
+            under 300 characters — _plugins/agenda.rb warns at build time if
+            it runs longer, and nothing is truncated, so an overlong one just
+            makes the callout tall. HTML is allowed, as it is elsewhere in
+            _data/events.yml.
+
+  An event with no `sponsors:` key renders nothing at all.
+{%- endcomment -%}
+
+{%- assign sponsors = "" -%}
+{%- for event in site.data.events -%}
+  {%- if event.slug == include.slug and event.sponsors -%}
+    {%- assign sponsors = event.sponsors -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if sponsors != "" and sponsors.size > 0 -%}
+
+  {%- comment -%}
+    Does anyone on this bill have a logo? If so every card reserves the space
+    for one, so the names still line up down the column. If nobody does, no
+    card reserves anything and the callout is names and blurbs alone.
+  {%- endcomment -%}
+  {%- assign any_logo = false -%}
+  {%- for s in sponsors -%}
+    {%- capture probe -%}
+      {% include agenda/sponsor-logo.html name=s.name logo=s.logo %}
+    {%- endcapture -%}
+    {%- assign probe = probe | strip -%}
+    {%- if probe != "" -%}{%- assign any_logo = true -%}{%- break -%}{%- endif -%}
+  {%- endfor -%}
+
+  {%- capture rows -%}
+    {%- for s in sponsors -%}
+      {%- assign name = s.name | default: "" | strip -%}
+      {%- if name == "" -%}{%- continue -%}{%- endif -%}
+
+      {%- capture mark -%}
+        {% include agenda/sponsor-logo.html name=s.name logo=s.logo class="sponsor__logo" %}
+      {%- endcapture -%}
+      {%- assign mark = mark | strip -%}
+
+      <div class="sponsor">
+        {%- if mark != "" %}
+        <div class="sponsor__mark">
+          {%- if s.url and s.url != "" -%}
+          {%- comment -%}
+            Hidden from assistive tech: the name below links to the same
+            place, so this is a bigger target for a mouse, not a second
+            announcement of the same link.
+          {%- endcomment -%}
+          <a href="{{ s.url }}" tabindex="-1" aria-hidden="true">{{ mark }}</a>
+          {%- else -%}
+          {{ mark }}
+          {%- endif -%}
+        </div>
+        {%- elsif any_logo %}
+        <div class="sponsor__mark sponsor__mark--empty" aria-hidden="true"></div>
+        {%- endif %}
+        <div class="sponsor__body">
+          <p class="sponsor__name">
+            {%- if s.url and s.url != "" -%}
+              <a href="{{ s.url }}">{{ name }}</a>
+            {%- else -%}
+              {{ name }}
+            {%- endif -%}
+          </p>
+          {%- if s.blurb and s.blurb != "" %}
+          <p class="sponsor__blurb">{{ s.blurb }}</p>
+          {%- endif %}
+        </div>
+      </div>
+    {%- endfor -%}
+  {%- endcapture -%}
+  {%- assign rows = rows | strip -%}
+
+  {%- comment -%}
+    Every entry could have been nameless, in which case there is nothing to
+    announce and the whole callout stays away.
+  {%- endcomment -%}
+  {%- if rows != "" %}
+  <div class="sponsors">
+    <p class="sponsors__label">Sponsored by</p>
+    {{ rows }}
+  </div>
+  {%- endif -%}
+{%- endif -%}

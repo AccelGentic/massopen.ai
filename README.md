@@ -199,6 +199,48 @@ scheduled still appears, saying the programme is not announced yet.
 
 `_data/agenda.yml` is generated — do not hand-edit it; the next export wins.
 
+### Event sponsors
+
+Each event's agenda page can carry a sponsor callout under the title: the
+company, a link to their site, their logo, and a sentence or two on why they
+are sponsoring. Authored per event in `_data/events.yml`, alongside the rest
+of that event's wording — never in `_data/agenda.yml`, which every
+`agenda.php export` overwrites.
+
+```yaml
+- slug: oct01-bos
+  title: Agentic 101 - Boston, MA (Glasswing Ventures)
+  sponsors:
+    - name: Example Corp
+      url: https://example.com/
+      logo: /assets/img/sponsors/example-corp.svg
+      blurb: >-
+        One or two sentences on why they are sponsoring.
+```
+
+It is a list, so an event can carry one sponsor or several — each renders as
+its own card, in the order written. `name` is the only required field; an
+entry without one is skipped.
+
+`logo` takes a path under the site or a full `https://` URL. Leave it out and
+the callout looks for a file named after the sponsor in `assets/img/sponsors/`
+— `Example Corp` → `assets/img/sponsors/example-corp.svg` — matched on the
+slugified basename, so the extension and the capitalisation don't matter. With
+neither, the card shows the name on its own, and on a bill where somebody else
+has a logo it still reserves the space so the names line up. Logos are drawn
+into a fixed 132×64 box with `object-fit: contain`, so any shape fits without
+being stretched or cropped; SVG is the safest bet, and there is no need to
+pre-size it.
+
+Keep `blurb` under 300 characters. Nothing truncates it — these are someone
+else's words about why they are paying for the room — but the build prints a
+warning naming the event and the length, so an overlong one does not reach the
+site unnoticed. HTML is allowed, as it is elsewhere in `_data/events.yml`.
+
+An event with no `sponsors:` key renders nothing at all. This is separate from
+the `/sponsors/` page, which is the sponsorship prospectus rather than a
+record of who sponsored what.
+
 ### Speaker headshots
 
 A talk page shows the speaker's photo next to their bio. There are two ways to

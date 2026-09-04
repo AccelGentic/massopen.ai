@@ -21,6 +21,23 @@
 #              agenda page. See _includes/agenda/registration.html for the
 #              fields. Omit it entirely for an event with nowhere to send
 #              people yet — it then renders nothing.
+#   sponsors   optional; who is sponsoring this event, shown as a callout at
+#              the top of its agenda page. A list, so an event can carry one
+#              or several. See _includes/agenda/sponsor.html. Omit it and
+#              nothing is rendered:
+#
+#                sponsors:
+#                  - name: Example Corp
+#                    url: https://example.com/
+#                    logo: /assets/img/sponsors/example-corp.svg
+#                    blurb: >-
+#                      One or two sentences on why they are sponsoring.
+#                      Under 300 characters — the build warns if it is
+#                      longer, and nothing is cut.
+#
+#              `name` is the only required field. Without `logo` the callout
+#              looks for assets/img/sponsors/<name slugified>.*; without
+#              `url` the name is plain text rather than a link.
 - slug: sept15-dc
   image: /assets/img/events/sept15-dc.jpg
   image_alt: Cherry blossoms in full bloom on the Potomac - image courtesy of Yeon Choi (@yeonji12) at Unsplash

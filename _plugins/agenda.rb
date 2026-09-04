@@ -15,7 +15,14 @@ module Jekyll
     safe true
     priority :normal
 
+    # A sponsor blurb is meant to be a sentence or two. Nothing truncates it —
+    # these are someone else's words about why they are paying for the room —
+    # so say so at build time and leave the copy alone.
+    BLURB_MAX = 300
+
     def generate(site)
+      check_sponsors(site)
+
       data = site.data['agenda']
       events = data.is_a?(Hash) ? data['events'] : nil
       return if events.nil? || events.empty?
@@ -29,6 +36,35 @@ module Jekyll
         (event['talks'] || []).each do |talk|
           next if talk['slug'].to_s == ''
           site.pages << TalkPage.new(site, event, talk)
+        end
+      end
+    end
+
+    # Sponsors are authored by hand in _data/events.yml, so the only thing
+    # standing between a typo and a published page is this.
+    def check_sponsors(site)
+      events = site.data['events']
+      return unless events.is_a?(Array)
+
+      events.each do |event|
+        sponsors = event.is_a?(Hash) ? event['sponsors'] : nil
+        next unless sponsors.is_a?(Array)
+
+        where = event['slug'].to_s == '' ? 'an event with no slug' : event['slug']
+
+        sponsors.each_with_index do |sponsor, i|
+          unless sponsor.is_a?(Hash) && sponsor['name'].to_s.strip != ''
+            Jekyll.logger.warn 'Agenda:',
+              "#{where}: sponsor #{i + 1} has no name, so it is not shown."
+            next
+          end
+
+          blurb = sponsor['blurb'].to_s
+          next if blurb.length <= BLURB_MAX
+
+          Jekyll.logger.warn 'Agenda:',
+            "#{where}: #{sponsor['name']}'s blurb is #{blurb.length} characters, " \
+            "over the #{BLURB_MAX} the callout is designed for. Shown in full."
         end
       end
     end
