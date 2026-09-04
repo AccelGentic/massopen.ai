@@ -54,7 +54,7 @@ nav:
   - title: Mission
     anchor: mission
   - title: Events
-    anchor: events
+    url: /agenda/
   # The newsletter is a separate, self-hosted Ghost site on its own subdomain.
   # `external` names a top-level site key so the URL is defined once, below.
   - title: News
