@@ -37,16 +37,19 @@
     note: 'Registration is handled by the DC State of the Stack event site.'
 
 - slug: oct01-bos
+  image: /assets/img/events/boston.jpg
+  image_alt: Photograph of Boston sign in downtown Boston
   date: "Oct 1, 2026"
   starts_on: 2026-10-01
   title: Agentic 101 - Boston, MA (Glasswing Ventures)
   location: Glasswing Ventures, Boston, MA
   body: "Our next Agentic 101 will be in Boston at Glasswing Ventures. <a href=\"agenda/oct01-bos\">(agenda)</a>"
   registration:
-    status: soon
-    price: $50 per person
-    url: https://news.massopen.ai/
-    cta: Get notified when registration opens
+    status: open
+    price: $25 per person
+    url: https://luma.com/3kp1o3og 
+    cta: Register now at Luma.com
+    note: 'Registration is handled by luma.com' 
 
 - slug: oct17-nyc
   date: "October 17, 2026"
