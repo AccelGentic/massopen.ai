@@ -52,6 +52,16 @@
     url: https://dcstateofthestack.org/registration/
     cta: Register at DC State of the Stack
     note: 'Registration is handled by the DC State of the Stack event site.'
+  sponsors: 
+  - name: Stacklet
+    url: https://stacklet.ai/
+    blurb: Stacklet empowers organizations to save money, drive efficiency, and minimize risk in the cloud.
+  - name: Red Hat
+    url: https://redhat.com/
+    blurb: From here, every direction is open
+  - name: The Open Accelerator
+    url: https://the-open-accelerator.com/
+    blurb: We bridge the Enterprise Readiness Gap by providing a curated residency for AI entrepreneurs, providing the credibility, expertise, and network needed to transform innovation into thriving startup companies.
 
 - slug: oct01-bos
   image: /assets/img/events/boston.jpg
@@ -67,6 +77,16 @@
     url: https://luma.com/3kp1o3og 
     cta: Register now at Luma.com
     note: 'Registration is handled by luma.com' 
+  sponsors:
+  - name: Stacklet
+    url: https://stacklet.ai/
+    blurb: Stacklet empowers organizations to save money, drive efficiency, and minimize risk in the cloud.
+  - name: Red Hat
+    url: https://redhat.com/
+    blurb: From here, every direction is open
+  - name: The Open Accelerator
+    url: https://the-open-accelerator.com/
+    blurb: We bridge the Enterprise Readiness Gap by providing a curated residency for AI entrepreneurs, providing the credibility, expertise, and network needed to transform innovation into thriving startup companies.
 
 - slug: oct17-nyc
   date: "October 17, 2026"
