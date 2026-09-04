@@ -260,18 +260,18 @@ CREATE TABLE IF NOT EXISTS cfp_schedule (
 -- create the table above, then carry the existing bookings across. INSERT
 -- IGNORE, so this is safe to re-run.
 --
---#   INSERT IGNORE INTO cfp_schedule (submission_id, event_id, slot_order)
---#   SELECT id, event_id, slot_order FROM cfp_submissions
---#    WHERE event_id IS NOT NULL;
+   INSERT IGNORE INTO cfp_schedule (submission_id, event_id, slot_order)
+   SELECT id, event_id, slot_order FROM cfp_submissions
+    WHERE event_id IS NOT NULL;
 --
 -- Once you have checked `php tools/agenda.php status` against the old
 -- schedule, the columns those bookings came from can go. Nothing reads them
 -- any more. Drop the foreign key first if the install ever added it:
 --
---#   ALTER TABLE cfp_submissions DROP FOREIGN KEY fk_cfp_event;
---#   ALTER TABLE cfp_submissions
---#     DROP COLUMN IF EXISTS event_id,
---#     DROP COLUMN IF EXISTS slot_order;
+   ALTER TABLE cfp_submissions DROP FOREIGN KEY fk_cfp_event;
+   ALTER TABLE cfp_submissions
+     DROP COLUMN IF EXISTS event_id,
+     DROP COLUMN IF EXISTS slot_order;
 
 
 -- Single-use form nonces, issued by cfp_token.php when the form is rendered.
