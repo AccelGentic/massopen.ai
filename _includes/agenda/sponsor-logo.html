@@ -1,0 +1,46 @@
+{%- comment -%}
+  A sponsor's logo. Emits an <img>, or nothing at all when the sponsor has no
+  logo, so callers can capture this and fall back — the same shape as
+  agenda/event-image.html and agenda/headshot.html.
+
+    include.name   the sponsor's name (required)
+    include.logo   the event's explicit `logo:` for them, if it set one
+    include.class  class for the <img>
+
+  Two ways to give a sponsor a logo, tried in this order:
+
+    1. `logo:` on the sponsor in _data/events.yml. Either a site path
+       ("/assets/img/sponsors/example-corp.svg") or a full https:// URL.
+    2. A file dropped in assets/img/sponsors/ named after them:
+       "Example Corp" -> assets/img/sponsors/example-corp.svg. Matched on the
+       slugified basename, so the extension and the capitalisation don't
+       matter.
+
+  Always alt="", never the company name: the name is written out beside the
+  logo in every callout that uses this, so alt text here would be a second
+  announcement of the same words.
+{%- endcomment -%}
+
+{%- assign src = include.logo | default: "" | strip -%}
+
+{%- if src == "" -%}
+  {%- assign want = include.name | slugify -%}
+  {%- for file in site.static_files -%}
+    {%- if file.path contains "/assets/img/sponsors/" -%}
+      {%- assign base = file.basename | slugify -%}
+      {%- if base == want -%}
+        {%- assign src = file.path -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if src != "" -%}
+  {%- if src contains "://" -%}
+    {%- assign href = src -%}
+  {%- else -%}
+    {%- assign href = src | relative_url -%}
+  {%- endif -%}
+  <img class="{{ include.class }}" src="{{ href }}" alt="" loading="lazy" decoding="async">
+{%- endif -%}
