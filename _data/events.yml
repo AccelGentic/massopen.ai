@@ -31,11 +31,10 @@
   body: "Our inaugural Agentic 101 event! <a href=\"agenda/sept15-dc/\">(agenda)</a>"
   registration:
     status: open
-    price: $50 per person
+    price: $50 ($20 for DC SotS Attendees)
     url: https://dcstateofthestack.org/registration/
-    cta: Register at State of the Stack
-    note: 'Registration is handled by the DC State of the Stack event site.
-      <a href="mailto:massopen@massopen.ai">Ask about group discounts</a>.'
+    cta: Register at DC State of the Stack
+    note: 'Registration is handled by the DC State of the Stack event site.'
 
 - slug: oct01-bos
   date: "Oct 1, 2026"
