@@ -56,12 +56,15 @@
   - name: Stacklet
     url: https://stacklet.ai/
     blurb: Stacklet empowers organizations to save money, drive efficiency, and minimize risk in the cloud.
+    logo: /assets/img/sponsors/stacklet.png
   - name: Red Hat
     url: https://redhat.com/
     blurb: From here, every direction is open
+    logo: /assets/img/sponsors/redhat.png
   - name: The Open Accelerator
     url: https://the-open-accelerator.com/
     blurb: We bridge the Enterprise Readiness Gap by providing a curated residency for AI entrepreneurs, providing the credibility, expertise, and network needed to transform innovation into thriving startup companies.
+    logo: /assets/img/sponsors/the-open-accelerator.png
 
 - slug: oct01-bos
   image: /assets/img/events/boston.jpg
@@ -81,12 +84,15 @@
   - name: Stacklet
     url: https://stacklet.ai/
     blurb: Stacklet empowers organizations to save money, drive efficiency, and minimize risk in the cloud.
+    logo: /assets/img/sponsors/stacklet.png
   - name: Red Hat
     url: https://redhat.com/
     blurb: From here, every direction is open
+    logo: /assets/img/sponsors/redhat.png
   - name: The Open Accelerator
     url: https://the-open-accelerator.com/
     blurb: We bridge the Enterprise Readiness Gap by providing a curated residency for AI entrepreneurs, providing the credibility, expertise, and network needed to transform innovation into thriving startup companies.
+    logo: /assets/img/sponsors/the-open-accelerator.png
 
 - slug: oct17-nyc
   date: "October 17, 2026"
