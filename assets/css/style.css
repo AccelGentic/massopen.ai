@@ -792,15 +792,23 @@ a { color: var(--accent); }
 .sponsor + .sponsor { margin-top: 14px; }
 /* A fixed box, so logos of different shapes still line their blurbs up, and
    an empty one for a sponsor with no logo on a bill where someone else has
-   one. The box has to be a definite size all the way down to the image: an
-   SVG logo with a viewBox but no width/height — which is most of them — has
-   no intrinsic size to fall back on and collapses to nothing otherwise. */
-.sponsor__mark { flex: none; width: 132px; }
-.sponsor__mark > a { display: block; }
+   one. The box itself stays transparent, so the empty placeholder still
+   reserves space invisibly; the white plate below belongs to the image, not
+   the wrapper, so an empty sponsor doesn't get a blank white tile. */
+.sponsor__mark { flex: none; width: 132px; height: 84px; }
+.sponsor__mark > a { display: block; height: 100%; }
+/* White, not the card's dark panel: sponsor logos are supplied as brand
+   assets meant for a light background — dark or transparent linework that
+   all but disappears on --bg-panel — so each logo carries its own white
+   plate regardless of the theme around it. */
 .sponsor__logo {
   display: block;
+  box-sizing: border-box;
   width: 100%;
-  height: 64px;
+  height: 100%;
+  padding: 10px;
+  background: #fff;
+  border-radius: 8px;
   object-fit: contain;
   object-position: center;
 }
