@@ -98,6 +98,6 @@ events:
         slot: "8"
   - slug: "oct17-nyc"
     title: "Agentic 101 - NY, NY (location TBD)"
-    starts_on: "2026-10-17"
+    starts_on: "Spring 2027"
     location: "New York, NY"
     talks: []
