@@ -51,6 +51,8 @@ keep_files:
 # Drives the top nav. Items with an `anchor` jump to a section on the home page;
 # items with a `url` link to a standalone page.
 nav:
+  - title: About
+    url: /about/
   - title: Mission
     anchor: mission
   - title: Events
